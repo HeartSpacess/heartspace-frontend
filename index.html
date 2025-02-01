@@ -4,21 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HeartSpace - Home</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e3f2fd;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1976d2;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #1565c0;
+            padding: 10px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .button {
+            background-color: #1565c0;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0d47a1;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>HeartSpace - A Safe Place to Share & Heal</h1>
+        HeartSpace 💙 - Home
     </header>
     <nav>
-        <a href="mood.html">Share Mood</a>
+        <a href="index.html">Home</a>
         <a href="forums.html">Forums</a>
-        <a href="confessions.html">Confessions</a>
         <a href="quizzes.html">Quizzes</a>
+        <a href="confessions.html">Confessions</a>
         <a href="experts.html">Expert Advice</a>
+        <a href="login.html">Login</a>
+        <a href="signup.html">Sign Up</a>
+        <a href="guest.html">Guest Mode</a>
+        <a href="friends.html">Find Friends</a>
+        <a href="mood.html">Share Mood</a>
     </nav>
-    <main>
-        <p>Welcome to HeartSpace! Connect, share, and discuss your emotions in a safe space.</p>
-    </main>
+    <div class="container">
+        <div class="section">
+            <h2>Welcome to HeartSpace 💙</h2>
+            <p>Connect, share, and get advice on relationships in a supportive community.</p>
+            <button class="button" onclick="window.location.href='signup.html'">Join Now</button>
+        </div>
+    </div>
 </body>
 </html>
+
