@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeartSpace - Quizzes</title>
+    <title>HeartSpace - Login</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -57,11 +57,18 @@
         .button:hover {
             background-color: #0d47a1;
         }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <header>
-        HeartSpace 💙 - Relationship Quizzes
+        HeartSpace 💙 - Login
     </header>
     <nav>
         <a href="index.html">Home</a>
@@ -77,14 +84,12 @@
     </nav>
     <div class="container">
         <div class="section">
-            <h2>Find Out More About Yourself</h2>
-            <p>Take fun and insightful relationship quizzes.</p>
-            <ul>
-                <li><a href="#">What’s Your Love Language?</a></li>
-                <li><a href="#">Are You in a Healthy Relationship?</a></li>
-                <li><a href="#">How Well Do You Communicate?</a></li>
-            </ul>
-            <button class="button">Start a Quiz</button>
+            <h2>Login to Your Account</h2>
+            <form>
+                <input type="text" placeholder="Username or Email" required>
+                <input type="password" placeholder="Password" required>
+                <button class="button">Login</button>
+            </form>
         </div>
     </div>
 </body>
