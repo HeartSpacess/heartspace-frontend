@@ -32,3 +32,22 @@ button {
 button:hover {
     background-color: #125aa6;
 }
+.auth-form {
+    width: 300px;
+    margin: 20px auto;
+    text-align: left;
+  }
+  .auth-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  .auth-form input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  

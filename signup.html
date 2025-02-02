@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeartSpace - Sign Up</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Create Your Account</h1>
+  </header>
+
+  <nav>
+    <a href="login.html">Login</a>
+    <a href="index.html">Home</a>
+  </nav>
+
+  <main>
+    <form id="signupForm" class="auth-form">
+      <label for="signupName">Name:</label>
+      <input type="text" id="signupName" placeholder="Enter your full name" required>
+
+      <label for="signupEmail">Email:</label>
+      <input type="email" id="signupEmail" placeholder="Enter your email" required>
+
+      <label for="signupPassword">Password:</label>
+      <input type="password" id="signupPassword" placeholder="Create a password" required>
+
+      <label for="signupAge">Age:</label>
+      <input type="number" id="signupAge" placeholder="Enter your age" required>
+
+      <label for="signupLocation">Location:</label>
+      <input type="text" id="signupLocation" placeholder="Enter your location">
+
+      <button type="submit" class="button">Sign Up</button>
+    </form>
+  </main>
+
+  <script>
+    const API_URL = "https://heartspace-backend.onrender.com"; // Change if needed
+
+    document.getElementById('signupForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const age = document.getElementById('signupAge').value;
+      const location = document.getElementById('signupLocation').value;
+
+      // Example POST request to register endpoint
+      try {
+        const response = await fetch(`${API_URL}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, age, location })
+        });
+        if (!response.ok) {
+          alert('Sign-up failed. Email might already be taken.');
+          return;
+        }
+        alert('Account created successfully!');
+        // Optionally redirect to login page
+        // window.location.href = 'login.html';
+      } catch (error) {
+        alert('Error signing up.');
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
