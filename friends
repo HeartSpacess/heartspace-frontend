@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Friends & Add People</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="friends.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Find Friends & Add People</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="forums.html">Community Forums</a></li>
+                <li><a href="quizzes.html">Quizzes</a></li>
+                <li><a href="confessions.html">Confessions</a></li>
+                <li><a href="experts.html">Expert Advice</a></li>
+                <li><a href="login.html">Login</a> | <a href="signup.html">Sign Up</a></li>
+                <li><a href="guest.html">Guest Mode</a></li>
+                <li><a href="friends.html">Find Friends</a></li>
+                <li><a href="mood.html">Share Mood & Music</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Search for Friends</h2>
+            <input type="text" id="friend-search" placeholder="Enter name or username">
+            <button onclick="searchFriends()">Search</button>
+            <ul id="search-results"></ul>
+        </section>
+
+        <section>
+            <h2>Friend Requests</h2>
+            <ul id="friend-requests">
+                <li>User1 <button onclick="acceptRequest(this)">Accept</button> <button onclick="declineRequest(this)">Decline</button></li>
+                <li>User2 <button onclick="acceptRequest(this)">Accept</button> <button onclick="declineRequest(this)">Decline</button></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Suggested Friends</h2>
+            <ul id="suggested-friends">
+                <li>User3 <button onclick="addFriend(this)">Add Friend</button></li>
+                <li>User4 <button onclick="addFriend(this)">Add Friend</button></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Relationship Community. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function searchFriends() {
+            let query = document.getElementById("friend-search").value.toLowerCase();
+            let results = document.getElementById("search-results");
+            results.innerHTML = ""; 
+            if (query === "john") {
+                results.innerHTML = "<li>John Doe <button>Add Friend</button></li>";
+            } else {
+                results.innerHTML = "<li>No results found</li>";
+            }
+        }
+
+        function acceptRequest(button) {
+            button.parentElement.innerHTML = "Accepted ✅";
+        }
+
+        function declineRequest(button) {
+            button.parentElement.innerHTML = "Declined ❌";
+        }
+
+        function addFriend(button) {
+            button.innerText = "Request Sent ✅";
+            button.disabled = true;
+        }
+    </script>
+</body>
+</html>
