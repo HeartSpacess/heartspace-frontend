@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- IMPORTANT for mobile responsiveness -->
+  <!-- Ensures mobile responsiveness on phones -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HeartSpace - Community</title>
   <style>
@@ -27,7 +27,7 @@
       gap: 30px;
       padding: 10px;
       background-color: #f4f4f4;
-      flex-wrap: wrap;
+      flex-wrap: wrap; /* wraps on smaller screens */
     }
     nav a {
       text-decoration: none;
@@ -42,89 +42,56 @@
     main {
       margin: 20px auto;
       width: 90%;
-      max-width: 600px;
+      max-width: 600px; /* fluid up to 600px */
       text-align: left;
     }
-    .post-form {
+    /* "Express your Emotions" line */
+    .express-line {
       background-color: #f9f9f9;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .post-form h2 {
-      margin-top: 0;
+    .express-line h2 {
+      margin: 0;
       color: #1976d2;
+      font-size: 20px;
     }
-    .post-form textarea {
-      width: 100%;
-      height: 80px;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-family: Arial, sans-serif;
-    }
-    .button {
-      background-color: #1976d2;
+    .express-line a {
+      text-decoration: none;
       color: white;
-      padding: 10px 20px;
-      border: none;
+      background-color: #1976d2;
+      padding: 8px 12px;
       border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
+      font-weight: bold;
+      font-size: 14px;
     }
-    .button:hover {
+    .express-line a:hover {
       background-color: #125aa6;
     }
+
     .feed {
-      margin-top: 20px;
+      margin-top: 10px;
     }
-    /* Post container */
     .post {
       background-color: #f5f5f5;
       padding: 15px;
       margin-bottom: 15px;
       border-radius: 10px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-
-      /* new layout: flex for picture + name/content */
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
     }
-    .post-left {
-      /* container for profile pic */
-      flex-shrink: 0;
-    }
-    .profile-pic {
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-    .post-right {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-    }
-    .post-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .post-header .poster-name {
-      font-size: 18px;
+    .post h3 {
+      margin-top: 0;
       color: #1976d2;
-      margin: 0;
+      font-size: 18px;
     }
-    .post-content {
+    .post p {
       margin: 10px 0;
       color: #333;
-    }
-    .post-time {
-      font-size: 13px;
-      color: #777;
     }
     .post-actions {
       display: flex;
@@ -144,18 +111,18 @@
       background-color: #ccc;
     }
 
-    /* Media query: screens <= 480px */
+    /* Media query for screens <= 480px */
     @media (max-width: 480px) {
       nav a {
         font-size: 16px;
       }
-      .button, .action-button {
-        font-size: 14px;
+      .express-line h2 {
+        font-size: 18px;
       }
-      .post-form h2 {
-        font-size: 20px;
+      .express-line a {
+        font-size: 13px;
       }
-      .poster-name {
+      .post h3 {
         font-size: 16px;
       }
     }
@@ -175,137 +142,72 @@
   </nav>
 
   <main>
-    <!-- Post Form -->
-    <div class="post-form">
-      <h2>Share Your Mood</h2>
-      <textarea id="moodContent" placeholder="What's on your mind?"></textarea>
-      <button class="button" onclick="createPost()">Post</button>
+    <!-- "Express your Emotions" line at top -->
+    <div class="express-line">
+      <h2>Express your Emotions</h2>
+      <!-- Link to express.html (or any page) where user can create a new post -->
+      <a href="express.html">Go</a>
     </div>
 
-    <!-- Feed -->
+    <!-- Feed of people’s posts -->
     <div class="feed" id="feedContainer">
       <!-- Posts will appear here -->
     </div>
   </main>
 
   <script>
-    const API_URL = "https://heartspace-backend.onrender.com"; // your backend
-    // Suppose you store user info in localStorage after login
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    const userPic = localStorage.getItem('userPic');
+    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust to your actual backend
+    // if you need userId, do: const userId = localStorage.getItem('userId');
 
-    // Create a new post
-    async function createPost() {
-      const content = document.getElementById('moodContent').value.trim();
-      if (!content) {
-        alert("Please write something!");
-        return;
-      }
-      try {
-        // Send userId, userName, userPic to backend
-        const response = await fetch(`${API_URL}/posts`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            userId, 
-            userName, 
-            userPic, 
-            content 
-          })
-        });
-        if (!response.ok) {
-          console.log("POST /posts error:", response.status);
-          alert('Error creating post');
-          return;
-        }
-        document.getElementById('moodContent').value = '';
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFeed();
+    });
 
-        // show success message
-        alert("Posted successfully!");
-
-        // reload feed
-        loadFeed();
-      } catch (error) {
-        console.error("Exception in createPost:", error);
-        alert('Error creating post');
-      }
-    }
-
-    // Load entire feed, my posts on top (sorted newest first)
+    // Load the feed of everyone’s posts, sorted by newest first
     async function loadFeed() {
       try {
-        const response = await fetch(`${API_URL}/posts`);
+        // Example: GET /posts or GET /allPosts depending on your backend
+        const response = await fetch(`${API_URL}/allPosts`);
         if (!response.ok) {
           console.log("Error loading feed, status:", response.status);
           return;
         }
         const posts = await response.json();
-        console.log("Posts fetched:", posts);
-
         const feedContainer = document.getElementById('feedContainer');
         feedContainer.innerHTML = '';
 
         if (!Array.isArray(posts) || posts.length === 0) {
-          feedContainer.innerHTML = "<p>No posts found.</p>";
+          feedContainer.innerHTML = "<p>No posts to show.</p>";
           return;
         }
 
-        // separate my posts vs others
-        const myPosts = [];
-        const otherPosts = [];
+        // Sort posts by newest first if not already sorted
+        posts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        // Render each post
         posts.forEach(post => {
-          if (post.userId === userId) {
-            myPosts.push(post);
-          } else {
-            otherPosts.push(post);
-          }
-        });
-
-        // sort each array by createdAt descending
-        myPosts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-        otherPosts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-        // combine: my posts first, then others
-        const orderedPosts = [...myPosts, ...otherPosts];
-
-        // render
-        orderedPosts.forEach(post => {
           const postDiv = document.createElement('div');
           postDiv.classList.add('post');
-
-          // fallback if userName or userPic not provided
-          const displayName = post.userName || "User";
-          const displayPic = post.userPic || "default-avatar.png";
-
           postDiv.innerHTML = `
-            <div class="post-left">
-              <img src="${displayPic}" alt="profile pic" class="profile-pic">
-            </div>
-            <div class="post-right">
-              <div class="post-header">
-                <h3 class="poster-name">${displayName}</h3>
-                <small class="post-time">
-                  ${new Date(post.createdAt).toLocaleString()}
-                </small>
-              </div>
-              <p class="post-content">${post.content}</p>
-              <div class="post-actions">
-                <button class="action-button" onclick="likePost('${post._id}')">Like</button>
-                <button class="action-button" onclick="commentPost('${post._id}')">Comment</button>
-                <button class="action-button" onclick="dmUser('${post.userId}')">DM</button>
-              </div>
+            <h3>${post.userName || "User"}</h3>
+            <p>${post.content}</p>
+            <small>Posted on: ${new Date(post.createdAt).toLocaleString()}</small>
+            <div class="post-actions">
+              <button class="action-button" onclick="likePost('${post._id}')">Like</button>
+              <button class="action-button" onclick="commentPost('${post._id}')">Comment</button>
+              <button class="action-button" onclick="dmUser('${post.userId}')">DM</button>
             </div>
           `;
           feedContainer.appendChild(postDiv);
         });
       } catch (error) {
-        console.error("Exception in loadFeed:", error);
+        console.error("Error in loadFeed:", error);
       }
     }
 
     function likePost(postId) {
       alert(`Liked post ${postId} (Placeholder)`);
+      // Real logic might do: fetch(`${API_URL}/like`, { method: "POST", body: {...} })
     }
     function commentPost(postId) {
       const text = prompt("Enter your comment:");
@@ -315,10 +217,6 @@
     function dmUser(targetUserId) {
       alert(`Starting DM with userId = ${targetUserId} (Placeholder)`);
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      loadFeed();
-    });
   </script>
 </body>
 </html>
