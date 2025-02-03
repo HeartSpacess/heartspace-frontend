@@ -19,7 +19,7 @@
       margin: 0;
       font-size: 28px;
     }
-    /* Navigation bar with 3 headings (community, profile, find friends) if you want */
+    /* Navigation bar with 3 headings (community, profile, find friends) */
     nav {
       display: flex;
       justify-content: center;
@@ -86,6 +86,35 @@
     .button:hover {
       background-color: #125aa6;
     }
+
+    /* My Posts section */
+    .my-posts {
+      background-color: #f9f9f9;
+      width: 320px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .my-posts h3 {
+      color: #1976d2;
+      margin-top: 0;
+    }
+    .post-item {
+      background: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .post-item p {
+      margin: 5px 0;
+      color: #333;
+    }
+    .post-item small {
+      color: #777;
+    }
   </style>
 </head>
 <body>
@@ -93,7 +122,7 @@
     <h1>My Profile</h1>
   </header>
 
-  <!-- Optional Nav Bar -->
+  <!-- Nav Bar -->
   <nav>
     <a href="community.html">Community</a>
     <a href="profile.html">My Profile</a>
@@ -101,12 +130,13 @@
   </nav>
 
   <main>
+    <!-- Profile Card -->
     <div class="profile-card">
       <h2>Welcome!</h2>
       <img id="profilePic" class="profile-pic" src="default-avatar.png" alt="Profile Picture">
       
       <div class="profile-info" id="profileInfo">
-        <!-- We will fill in user details from localStorage -->
+        <!-- We will fill in user details from localStorage or backend -->
       </div>
 
       <div class="upload-section">
@@ -115,32 +145,98 @@
         <button class="button" onclick="updatePhoto()">Upload Photo</button>
       </div>
     </div>
+
+    <!-- My Posts Section -->
+    <div class="my-posts">
+      <h3>My Posts</h3>
+      <div id="myPostsContainer">
+        <!-- We'll load user’s own posts here -->
+      </div>
+    </div>
   </main>
 
   <script>
-    // On page load, retrieve user info from localStorage
+    const API_URL = "https://heartspace-backend.onrender.com"; // your actual backend
+    // If you stored userData from signup
+    const userDataStr = localStorage.getItem('userData');
+    // Or if you store only userId from login
+    const userId = localStorage.getItem('userId');
+
     document.addEventListener('DOMContentLoaded', () => {
-      const userDataStr = localStorage.getItem('userData');
-      if (!userDataStr) {
-        // If no user data found, maybe redirect or show a message
-        alert('No user data found. Please sign up first.');
+      if (!userDataStr && !userId) {
+        alert('No user data found. Please sign up or log in first.');
         // window.location.href = 'signup.html';
         return;
       }
-      const userData = JSON.parse(userDataStr);
+      // Display user info from localStorage userData (if present)
+      if (userDataStr) {
+        const userData = JSON.parse(userDataStr);
+        let infoHTML = '';
+        infoHTML += `<p><strong>Name:</strong> ${userData.name || 'N/A'}</p>`;
+        infoHTML += `<p><strong>Gender:</strong> ${userData.gender || 'N/A'}</p>`;
+        infoHTML += `<p><strong>Date of Birth:</strong> ${userData.dob || 'N/A'}</p>`;
+        infoHTML += `<p><strong>Email/Phone:</strong> ${userData.email || userData.phone || 'N/A'}</p>`;
+        infoHTML += `<p><strong>Location:</strong> ${userData.location || 'N/A'}</p>`;
+        document.getElementById('profileInfo').innerHTML = infoHTML;
+      }
 
-      // Build HTML to display user info
-      let infoHTML = '';
-      infoHTML += `<p><strong>Name:</strong> ${userData.name || 'N/A'}</p>`;
-      infoHTML += `<p><strong>Gender:</strong> ${userData.gender || 'N/A'}</p>`;
-      infoHTML += `<p><strong>Date of Birth:</strong> ${userData.dob || 'N/A'}</p>`;
-      infoHTML += `<p><strong>Email/Phone:</strong> ${userData.email || userData.phone || 'N/A'}</p>`;
-      infoHTML += `<p><strong>Location:</strong> ${userData.location || 'N/A'}</p>`;
+      // Optionally load user info from backend if you have userId
+      // loadProfileInfoFromBackend();
 
-      document.getElementById('profileInfo').innerHTML = infoHTML;
+      // Load user’s posts if we have userId
+      if (userId) {
+        loadMyPosts();
+      }
     });
 
-    // A placeholder function to handle photo upload
+    // (Optional) Load user info from backend if you prefer
+    async function loadProfileInfoFromBackend() {
+      try {
+        const res = await fetch(`${API_URL}/user/${userId}`);
+        if (!res.ok) return;
+        const userData = await res.json();
+        document.getElementById('profileInfo').innerHTML = `
+          <p><strong>Name:</strong> ${userData.name || 'N/A'}</p>
+          <p><strong>Email/Phone:</strong> ${userData.email || userData.phone || 'N/A'}</p>
+          <p><strong>Location:</strong> ${userData.location || 'N/A'}</p>
+        `;
+        if (userData.profilePic) {
+          document.getElementById('profilePic').src = userData.profilePic;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Load only this user’s posts
+    async function loadMyPosts() {
+      try {
+        const res = await fetch(`${API_URL}/posts?userId=${userId}`);
+        if (!res.ok) return;
+        const posts = await res.json();
+        const container = document.getElementById('myPostsContainer');
+        container.innerHTML = '';
+
+        if (posts.length === 0) {
+          container.innerHTML = `<p>You haven't posted anything yet.</p>`;
+          return;
+        }
+
+        posts.forEach(post => {
+          const postDiv = document.createElement('div');
+          postDiv.classList.add('post-item');
+          postDiv.innerHTML = `
+            <p>${post.content}</p>
+            <small>Posted on: ${new Date(post.createdAt).toLocaleString()}</small>
+          `;
+          container.appendChild(postDiv);
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Photo upload preview
     function updatePhoto() {
       const fileInput = document.getElementById('photoInput');
       const file = fileInput.files[0];
@@ -148,16 +244,14 @@
         alert('No photo selected!');
         return;
       }
-      // If you want to show a preview:
       const reader = new FileReader();
       reader.onload = function(e) {
         document.getElementById('profilePic').src = e.target.result;
       }
       reader.readAsDataURL(file);
 
-      // If you want to store it in localStorage or send to a backend, do so here
-      // e.g., localStorage.setItem('profilePhoto', e.target.result);
       alert('Profile photo updated (preview only).');
+      // If you want to upload to backend, do so here with FormData
     }
   </script>
 </body>

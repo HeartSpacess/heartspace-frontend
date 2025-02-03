@@ -42,31 +42,6 @@
       max-width: 600px;
       text-align: left;
     }
-    /* Search Bar */
-    .search-bar {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      gap: 10px;
-    }
-    .search-bar input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    .search-bar button {
-      background-color: #1976d2;
-      color: white;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .search-bar button:hover {
-      background-color: #125aa6;
-    }
     /* Post Form */
     .post-form {
       background-color: #f9f9f9;
@@ -152,14 +127,8 @@
 
   <!-- Main Content -->
   <main>
-    <!-- Search Bar for Searching Friends -->
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search your friends...">
-      <button onclick="searchFriends()">Search</button>
-    </div>
-
     <!-- Post Form -->
-    <div class="post-form" id="postFormSection">
+    <div class="post-form">
       <h2>Share Your Mood</h2>
       <textarea id="moodContent" placeholder="What's on your mind?"></textarea>
       <button class="button" onclick="createPost()">Post</button>
@@ -167,38 +136,15 @@
 
     <!-- Feed -->
     <div class="feed" id="feedContainer">
-      <!-- Friends' posts will appear here -->
+      <!-- People’s posts will appear here -->
     </div>
   </main>
 
   <script>
-    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust as needed
-    const userId = localStorage.getItem('userId'); // Suppose user logs in / signs up
+    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust if needed
+    const userId = localStorage.getItem('userId'); // if you store userId after login
 
-    // If no user is logged in, show a message and hide post form
-    if (!userId) {
-      document.addEventListener('DOMContentLoaded', () => {
-        // Hide the post form
-        const postForm = document.getElementById('postFormSection');
-        postForm.style.display = 'none';
-
-        // Show the feed container with a message
-        const feedContainer = document.getElementById('feedContainer');
-        feedContainer.innerHTML = `
-          <p style="font-size:16px; color:#555; line-height:1.5;">
-            Posts will appear when your friends share their posts.<br>
-            (You are not logged in.)
-          </p>
-        `;
-      });
-    } else {
-      // User is logged in
-      document.addEventListener('DOMContentLoaded', () => {
-        loadFeed();
-      });
-    }
-
-    // Called when user clicks "Post"
+    // Create a new post
     async function createPost() {
       const content = document.getElementById('moodContent').value.trim();
       if (!content) {
@@ -206,6 +152,7 @@
         return;
       }
       try {
+        // Add userId if needed
         const response = await fetch(`${API_URL}/posts`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -223,11 +170,11 @@
       }
     }
 
-    // Load the feed (friends' posts)
+    // Load entire feed, but put MY posts at top
     async function loadFeed() {
       try {
-        // Example: GET /friendsPosts?userId=xxx
-        const response = await fetch(`${API_URL}/friendsPosts?userId=${userId}`);
+        // GET all posts
+        const response = await fetch(`${API_URL}/posts`);
         if (!response.ok) {
           console.log("Error loading feed");
           return;
@@ -236,11 +183,25 @@
         const feedContainer = document.getElementById('feedContainer');
         feedContainer.innerHTML = '';
 
+        // Separate myPosts vs others
+        const myPosts = [];
+        const otherPosts = [];
         posts.forEach(post => {
+          if (post.userId === userId) {
+            myPosts.push(post);
+          } else {
+            otherPosts.push(post);
+          }
+        });
+
+        // My posts first, others next
+        const orderedPosts = [...myPosts, ...otherPosts];
+
+        orderedPosts.forEach(post => {
           const postDiv = document.createElement('div');
           postDiv.classList.add('post');
           postDiv.innerHTML = `
-            <h3>${post.userName || "Friend"}</h3>
+            <h3>${post.userName || "User"}</h3>
             <p>${post.content}</p>
             <small>Posted on: ${new Date(post.createdAt).toLocaleString()}</small>
             <div class="post-actions">
@@ -256,70 +217,22 @@
       }
     }
 
-    // Search friends
-    async function searchFriends() {
-      const query = document.getElementById('searchInput').value.trim();
-      if (!query) {
-        alert('Enter a name or detail to search for your friends');
-        return;
-      }
-      try {
-        // Example: GET /searchFriends?userId=xxx&query=yyy
-        const res = await fetch(`${API_URL}/searchFriends?userId=${userId}&query=${query}`);
-        if (!res.ok) {
-          alert('Error searching friends');
-          return;
-        }
-        const results = await res.json();
-        alert(`Found ${results.length} friends:\n` + results.map(r => r.name).join('\n'));
-      } catch (error) {
-        console.error(error);
-      }
+    // Basic placeholders
+    function likePost(postId) {
+      alert(`Liked post ${postId} (Placeholder)`);
     }
-
-    // Like a post
-    async function likePost(postId) {
-      try {
-        const response = await fetch(`${API_URL}/like`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ postId, userId })
-        });
-        if (response.ok) {
-          loadFeed();
-        } else {
-          alert('Error liking post');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    // Comment on a post
-    async function commentPost(postId) {
+    function commentPost(postId) {
       const text = prompt("Enter your comment:");
       if (!text) return;
-      try {
-        const response = await fetch(`${API_URL}/comment`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ postId, userId, text })
-        });
-        if (response.ok) {
-          loadFeed();
-        } else {
-          alert('Error commenting on post');
-        }
-      } catch (error) {
-        console.error(error);
-      }
+      alert(`Commented on ${postId}: "${text}" (Placeholder)`);
+    }
+    function dmUser(targetUserId) {
+      alert(`Starting DM with userId = ${targetUserId} (Placeholder)`);
     }
 
-    // DM a user
-    async function dmUser(targetUserId) {
-      alert(`Starting DM with userId = ${targetUserId}. (Placeholder)`);
-      // Real logic might open a chat or route to a DM page
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFeed();
+    });
   </script>
 </body>
 </html>
