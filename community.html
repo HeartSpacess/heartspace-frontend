@@ -8,21 +8,18 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: white;
+      background-color: #f4f4f4;
     }
     header {
       background-color: #1976d2;
       color: white;
       padding: 20px;
       text-align: center;
+      font-size: 22px;
+      font-weight: bold;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 20px;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 24px;
     }
     .post-btn {
       background-color: white;
@@ -47,11 +44,11 @@
       max-width: 600px;
     }
     .post {
-      background-color: #f9f9f9;
+      background-color: white;
       width: 100%;
       padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       margin-bottom: 15px;
       display: flex;
       align-items: flex-start;
@@ -63,6 +60,7 @@
       border-radius: 50%;
       object-fit: cover;
       cursor: pointer;
+      border: 2px solid #1976d2;
     }
     .post-content {
       flex: 1;
@@ -73,6 +71,14 @@
     }
     .post-content small {
       color: #777;
+    }
+    .user-name {
+      cursor: pointer;
+      color: #1976d2;
+      font-weight: bold;
+    }
+    .user-name:hover {
+      text-decoration: underline;
     }
     .like-comment-section {
       display: flex;
@@ -92,6 +98,7 @@
       text-decoration: underline;
     }
     .comment-section {
+      display: none;
       margin-top: 10px;
       padding-left: 10px;
     }
@@ -131,16 +138,13 @@
         return;
       }
 
-      // Show latest posts at the top
-      posts.reverse(); 
-
-      posts.forEach((post, index) => {
+      posts.reverse().forEach((post, index) => {
         const postDiv = document.createElement('div');
         postDiv.classList.add('post');
         postDiv.innerHTML = `
-          <img class="profile-pic" src="${post.profilePic}" alt="Profile" onclick="viewProfile('${post.name}')">
+          <img class="profile-pic" src="${post.profilePic || 'default-avatar.png'}" alt="Profile" onclick="viewProfile('${post.email}')">
           <div class="post-content">
-            <p><strong class="user-name" onclick="viewProfile('${post.name}')">${post.name}</strong></p>
+            <p><strong class="user-name" onclick="viewProfile('${post.email}')">${post.name}</strong></p>
             <p>${post.content}</p>
             <small>${post.date}</small>
             <div class="like-comment-section">
@@ -156,52 +160,30 @@
             </div>
           </div>
         `;
-        postContainer.prepend(postDiv); // Adds the latest post at the top
-
-        checkIfUserLiked(index);
+        postContainer.prepend(postDiv); // Adds latest post at the top
       });
     });
 
-    function viewProfile(name) {
-      localStorage.setItem('viewedProfile', name);
-      window.location.href = 'view-profile.html';
+    function viewProfile(email) {
+      localStorage.setItem('viewingProfile', email);
+      window.location.href = 'viewProfile.html';
     }
 
     function likePost(index) {
       let posts = JSON.parse(localStorage.getItem('heartspacePosts')) || [];
-      let currentUser = JSON.parse(localStorage.getItem('heartspaceUser'));
+      let likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
 
-      if (!currentUser) {
-        alert("You must be logged in to like posts!");
+      if (likedPosts[index]) {
+        alert("You already liked this post!");
         return;
       }
 
-      let likedPosts = JSON.parse(localStorage.getItem(`likedPosts-${currentUser.name}`)) || [];
-
-      if (likedPosts.includes(index)) {
-        alert("You have already liked this post.");
-        return;
-      }
-
-      if (!posts[index].likes) posts[index].likes = 0;
-      posts[index].likes += 1;
-      likedPosts.push(index);
-
+      posts[index].likes = (posts[index].likes || 0) + 1;
       localStorage.setItem('heartspacePosts', JSON.stringify(posts));
-      localStorage.setItem(`likedPosts-${currentUser.name}`, JSON.stringify(likedPosts));
-
       document.getElementById(`like-count-${index}`).innerText = posts[index].likes;
-      document.getElementById(`like-btn-${index}`).disabled = true;
-    }
 
-    function checkIfUserLiked(index) {
-      let currentUser = JSON.parse(localStorage.getItem('heartspaceUser'));
-      if (!currentUser) return;
-
-      let likedPosts = JSON.parse(localStorage.getItem(`likedPosts-${currentUser.name}`)) || [];
-      if (likedPosts.includes(index)) {
-        document.getElementById(`like-btn-${index}`).disabled = true;
-      }
+      likedPosts[index] = true;
+      localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
     }
 
     function toggleCommentSection(index) {
@@ -213,6 +195,7 @@
       let posts = JSON.parse(localStorage.getItem('heartspacePosts')) || [];
       const commentInput = document.getElementById(`comment-input-${index}`);
       const commentText = commentInput.value.trim();
+
       if (!commentText) return;
 
       if (!posts[index].comments) posts[index].comments = [];

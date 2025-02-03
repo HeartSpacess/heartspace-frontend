@@ -111,6 +111,13 @@
     .logout-button:hover {
       background-color: darkred;
     }
+    .edit-section input {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
     .my-posts h3 {
       color: #1976d2;
       text-align: center;
@@ -167,34 +174,34 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
 
-      if (!currentUser) {
-        alert("No user is logged in. Redirecting to login...");
+      if (!loggedInUser) {
+        alert("No user found. Redirecting to login...");
         window.location.href = 'login.html';
         return;
       }
 
       document.getElementById('profileInfo').innerHTML = `
-        <p><strong>Name:</strong> ${currentUser.name}</p>
-        <p><strong>Gender:</strong> ${currentUser.gender}</p>
-        <p><strong>DOB:</strong> ${currentUser.dob}</p>
-        <p><strong>Email/Phone:</strong> ${currentUser.email || currentUser.phone}</p>
-        <p><strong>Location:</strong> ${currentUser.location}</p>
+        <p><strong>Name:</strong> ${loggedInUser.name}</p>
+        <p><strong>Gender:</strong> ${loggedInUser.gender}</p>
+        <p><strong>DOB:</strong> ${loggedInUser.dob}</p>
+        <p><strong>Email/Phone:</strong> ${loggedInUser.email || loggedInUser.phone}</p>
+        <p><strong>Location:</strong> ${loggedInUser.location}</p>
       `;
 
-      document.getElementById('profilePic').src = currentUser.profilePic || "default-avatar.png";
+      document.getElementById('profilePic').src = loggedInUser.profilePic || "default-avatar.png";
 
       loadMyPosts();
     });
 
     function loadMyPosts() {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
       const allPosts = JSON.parse(localStorage.getItem('heartspacePosts')) || [];
       const myPostsContainer = document.getElementById('myPostsContainer');
       myPostsContainer.innerHTML = '';
 
-      const userPosts = allPosts.filter(post => post.name === currentUser.name);
+      const userPosts = allPosts.filter(post => post.name === loggedInUser.name);
 
       if (userPosts.length === 0) {
         myPostsContainer.innerHTML = "<p>You haven't posted anything yet.</p>";
@@ -213,8 +220,29 @@
       });
     }
 
+    function updatePhoto() {
+      const fileInput = document.getElementById('photoInput');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert('No photo selected!');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById('profilePic').src = e.target.result;
+        let loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        loggedInUser.profilePic = e.target.result;
+        localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
+      };
+      reader.readAsDataURL(file);
+
+      alert('Profile photo updated!');
+    }
+
     function logout() {
-      localStorage.removeItem('currentUser');
+      localStorage.removeItem('loggedInUser');
       alert("Logged out successfully!");
       window.location.href = "login.html";
     }
