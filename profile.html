@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile | HeartSpace</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: white;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background-color: #1976d2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      margin-top: 30px; /* Extra spacing for clarity */
+    }
+    .profile-card {
+      background-color: #f9f9f9;
+      width: 350px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      margin-bottom: 40px; /* Space before posts */
+    }
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+    .user-info {
+      margin-top: 10px;
+      text-align: left;
+    }
+    .user-info p {
+      margin: 5px 0;
+      color: #555;
+    }
+    .user-info strong {
+      color: #1976d2;
+    }
+
+    /* Upload New Photo Section */
+    .upload-pic {
+      margin-top: 15px;
+      text-align: left;
+    }
+    .upload-pic label {
+      font-weight: bold;
+      color: #1976d2;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .upload-pic input[type="file"] {
+      margin-bottom: 10px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #1976d2;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .button:hover {
+      background-color: #125aa6;
+    }
+
+    /* Posts Section */
+    .posts-section {
+      width: 90%;
+      max-width: 600px;
+    }
+    .posts-title {
+      color: #1976d2;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .post {
+      background-color: #f5f5f5;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .post-user-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+    }
+    .post h3 {
+      margin: 0;
+      color: #1976d2;
+      font-size: 16px;
+    }
+    .post p {
+      margin: 5px 0;
+      color: #333;
+    }
+    .post small {
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>My Profile</h1>
+  </header>
+
+  <main>
+    <!-- Profile Card -->
+    <div class="profile-card" id="profileCard">
+      <img src="default-avatar.png" alt="Profile Picture" class="profile-pic" id="profilePic">
+      
+      <div class="user-info">
+        <p><strong>Name:</strong> <span id="profileName">John Doe</span></p>
+        <p><strong>Gender:</strong> <span id="profileGender">Male</span></p>
+        <p><strong>Date of Birth:</strong> <span id="profileDOB">1995-05-05</span></p>
+        <p><strong>Email/Phone:</strong> <span id="profileContact">johndoe@example.com</span></p>
+        <p><strong>Location:</strong> <span id="profileLocation">New York, USA</span></p>
+      </div>
+
+      <!-- Upload New Photo Section -->
+      <div class="upload-pic">
+        <label for="profilePicInput">Upload New Photo</label>
+        <input type="file" id="profilePicInput" accept="image/*">
+        <button class="button" onclick="updatePhoto()">Update Photo</button>
+      </div>
+    </div>
+
+    <!-- Posts Section -->
+    <div class="posts-section">
+      <div class="posts-title">My Posts</div>
+      <div id="postsContainer"><!-- Timeline-like posts here --></div>
+    </div>
+  </main>
+
+  <script>
+    /* Replace with your actual backend URL */
+    const API_URL = "https://heartspace-backend.onrender.com";
+
+    /* Example: userId is stored after login (localStorage) */
+    const userId = localStorage.getItem('userId');
+
+    /* Load user data into profile */
+    async function loadProfile() {
+      try {
+        // Example: GET /user/:id
+        const res = await fetch(`${API_URL}/user/${userId}`);
+        if (!res.ok) {
+          console.log("Error loading profile");
+          return;
+        }
+        const userData = await res.json();
+
+        document.getElementById('profileName').innerText = userData.name || 'N/A';
+        document.getElementById('profileGender').innerText = userData.gender || 'N/A';
+        document.getElementById('profileDOB').innerText = userData.dob || 'N/A';
+        document.getElementById('profileContact').innerText = userData.email ? userData.email : userData.phone;
+        document.getElementById('profileLocation').innerText = userData.location || 'N/A';
+
+        if (userData.profilePic) {
+          document.getElementById('profilePic').src = userData.profilePic;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    /* Load user's posts in a timeline style */
+    async function loadPosts() {
+      try {
+        // Example: GET /posts?userId=xxx
+        const res = await fetch(`${API_URL}/posts?userId=${userId}`);
+        if (!res.ok) {
+          console.log("Error loading posts");
+          return;
+        }
+        const posts = await res.json();
+        const postsContainer = document.getElementById('postsContainer');
+        postsContainer.innerHTML = '';
+
+        posts.forEach(post => {
+          const postDiv = document.createElement('div');
+          postDiv.classList.add('post');
+          
+          // Example post structure
+          // post = { content, createdAt, userPic? }
+
+          // Timeline-like header with user pic
+          const postHeader = document.createElement('div');
+          postHeader.classList.add('post-header');
+
+          // If you want to show user pic in each post, or the same user pic
+          const postUserPic = document.createElement('img');
+          postUserPic.classList.add('post-user-pic');
+          postUserPic.src = post.userPic || 'default-avatar.png';
+
+          const postTitle = document.createElement('h3');
+          postTitle.innerText = 'You'; // or userData.name if posted by the same user
+
+          postHeader.appendChild(postUserPic);
+          postHeader.appendChild(postTitle);
+          
+          const postContent = document.createElement('p');
+          postContent.innerText = post.content || '';
+
+          const postDate = document.createElement('small');
+          postDate.innerText = `Posted on: ${new Date(post.createdAt).toLocaleString()}`;
+
+          postDiv.appendChild(postHeader);
+          postDiv.appendChild(postContent);
+          postDiv.appendChild(postDate);
+
+          postsContainer.appendChild(postDiv);
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    /* Update photo function (placeholder) */
+    async function updatePhoto() {
+      const fileInput = document.getElementById('profilePicInput');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('No file selected!');
+        return;
+      }
+      // TODO: Upload to backend (e.g., /user/:id/photo)
+      /*
+      const formData = new FormData();
+      formData.append('profilePic', file);
+
+      const res = await fetch(`${API_URL}/user/${userId}/photo`, {
+        method: 'POST',
+        body: formData
+      });
+      if (res.ok) {
+        const data = await res.json();
+        alert('Photo updated successfully!');
+        document.getElementById('profilePic').src = data.profilePicUrl;
+      } else {
+        alert('Failed to update photo');
+      }
+      */
+      alert('Photo updated! (Placeholder: implement backend logic)');
+    }
+
+    /* On page load */
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!userId) {
+        console.log("No userId found. Redirecting to login...");
+        // window.location.href = 'login.html';
+      } else {
+        loadProfile();
+        loadPosts();
+      }
+    });
+  </script>
+</body>
+</html>
