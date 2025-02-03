@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeartSpace - Community</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: white;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background-color: #1976d2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 10px;
+      background-color: #f4f4f4;
+    }
+    nav a {
+      text-decoration: none;
+      color: #1976d2;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    nav a:hover {
+      color: #125aa6;
+    }
+    main {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
+    }
+    /* Search Bar */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .search-bar button {
+      background-color: #1976d2;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .search-bar button:hover {
+      background-color: #125aa6;
+    }
+    /* Post Form */
+    .post-form {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .post-form h2 {
+      margin-top: 0;
+      color: #1976d2;
+    }
+    .post-form textarea {
+      width: 100%;
+      height: 80px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: Arial, sans-serif;
+    }
+    .button {
+      background-color: #1976d2;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .button:hover {
+      background-color: #125aa6;
+    }
+    .feed {
+      margin-top: 20px;
+    }
+    .post {
+      background-color: #f5f5f5;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .post h3 {
+      margin-top: 0;
+      color: #1976d2;
+      font-size: 18px;
+    }
+    .post p {
+      margin: 10px 0;
+      color: #333;
+    }
+    .post-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .action-button {
+      background-color: #e0e0e0;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .action-button:hover {
+      background-color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>Community</h1>
+  </header>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="community.html">Community</a>
+    <a href="profile.html">My Profile</a>
+    <a href="friends.html">Find Friends</a>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Search Bar for Searching Friends -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search your friends...">
+      <button onclick="searchFriends()">Search</button>
+    </div>
+
+    <!-- Post Form -->
+    <div class="post-form" id="postFormSection">
+      <h2>Share Your Mood</h2>
+      <textarea id="moodContent" placeholder="What's on your mind?"></textarea>
+      <button class="button" onclick="createPost()">Post</button>
+    </div>
+
+    <!-- Feed -->
+    <div class="feed" id="feedContainer">
+      <!-- Friends' posts will appear here -->
+    </div>
+  </main>
+
+  <script>
+    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust as needed
+    const userId = localStorage.getItem('userId'); // Suppose user logs in / signs up
+
+    // If no user is logged in, show a message and hide post form
+    if (!userId) {
+      document.addEventListener('DOMContentLoaded', () => {
+        // Hide the post form
+        const postForm = document.getElementById('postFormSection');
+        postForm.style.display = 'none';
+
+        // Show the feed container with a message
+        const feedContainer = document.getElementById('feedContainer');
+        feedContainer.innerHTML = `
+          <p style="font-size:16px; color:#555; line-height:1.5;">
+            Posts will appear when your friends share their posts.<br>
+            (You are not logged in.)
+          </p>
+        `;
+      });
+    } else {
+      // User is logged in
+      document.addEventListener('DOMContentLoaded', () => {
+        loadFeed();
+      });
+    }
+
+    // Called when user clicks "Post"
+    async function createPost() {
+      const content = document.getElementById('moodContent').value.trim();
+      if (!content) {
+        alert("Please write something!");
+        return;
+      }
+      try {
+        const response = await fetch(`${API_URL}/posts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, content })
+        });
+        if (!response.ok) {
+          alert('Error creating post');
+          return;
+        }
+        document.getElementById('moodContent').value = '';
+        loadFeed(); // reload the feed
+      } catch (error) {
+        console.error(error);
+        alert('Error creating post');
+      }
+    }
+
+    // Load the feed (friends' posts)
+    async function loadFeed() {
+      try {
+        // Example: GET /friendsPosts?userId=xxx
+        const response = await fetch(`${API_URL}/friendsPosts?userId=${userId}`);
+        if (!response.ok) {
+          console.log("Error loading feed");
+          return;
+        }
+        const posts = await response.json();
+        const feedContainer = document.getElementById('feedContainer');
+        feedContainer.innerHTML = '';
+
+        posts.forEach(post => {
+          const postDiv = document.createElement('div');
+          postDiv.classList.add('post');
+          postDiv.innerHTML = `
+            <h3>${post.userName || "Friend"}</h3>
+            <p>${post.content}</p>
+            <small>Posted on: ${new Date(post.createdAt).toLocaleString()}</small>
+            <div class="post-actions">
+              <button class="action-button" onclick="likePost('${post._id}')">Like</button>
+              <button class="action-button" onclick="commentPost('${post._id}')">Comment</button>
+              <button class="action-button" onclick="dmUser('${post.userId}')">DM</button>
+            </div>
+          `;
+          feedContainer.appendChild(postDiv);
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Search friends
+    async function searchFriends() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) {
+        alert('Enter a name or detail to search for your friends');
+        return;
+      }
+      try {
+        // Example: GET /searchFriends?userId=xxx&query=yyy
+        const res = await fetch(`${API_URL}/searchFriends?userId=${userId}&query=${query}`);
+        if (!res.ok) {
+          alert('Error searching friends');
+          return;
+        }
+        const results = await res.json();
+        alert(`Found ${results.length} friends:\n` + results.map(r => r.name).join('\n'));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Like a post
+    async function likePost(postId) {
+      try {
+        const response = await fetch(`${API_URL}/like`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ postId, userId })
+        });
+        if (response.ok) {
+          loadFeed();
+        } else {
+          alert('Error liking post');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Comment on a post
+    async function commentPost(postId) {
+      const text = prompt("Enter your comment:");
+      if (!text) return;
+      try {
+        const response = await fetch(`${API_URL}/comment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ postId, userId, text })
+        });
+        if (response.ok) {
+          loadFeed();
+        } else {
+          alert('Error commenting on post');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // DM a user
+    async function dmUser(targetUserId) {
+      alert(`Starting DM with userId = ${targetUserId}. (Placeholder)`);
+      // Real logic might open a chat or route to a DM page
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeartSpace - Find Friends</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: white;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background-color: #1976d2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 10px;
+      background-color: #f4f4f4;
+    }
+    nav a {
+      text-decoration: none;
+      color: #1976d2;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    nav a:hover {
+      color: #125aa6;
+    }
+    main {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
+    }
+    /* Search Bar */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .search-bar button {
+      background-color: #1976d2;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .search-bar button:hover {
+      background-color: #125aa6;
+    }
+    .results-container {
+      margin-top: 20px;
+    }
+    .user-card {
+      background-color: #f9f9f9;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .user-info h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #1976d2;
+    }
+    .mutual-friends {
+      font-size: 14px;
+      color: #555;
+    }
+    .add-button {
+      background-color: #e0e0e0;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .add-button:hover {
+      background-color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>Find HeartSouls</h1>
+  </header>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="community.html">Community</a>
+    <a href="profile.html">My Profile</a>
+    <a href="friends.html">Find Friends</a>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search users...">
+      <button onclick="searchUsers()">Search</button>
+    </div>
+
+    <!-- Results Container -->
+    <div class="results-container" id="resultsContainer">
+      <!-- Searched users will appear here -->
+    </div>
+  </main>
+
+  <script>
+    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust if needed
+    const userId = localStorage.getItem('userId'); // Suppose user logs in / signs up
+
+    // If user not logged in, show a placeholder
+    if (!userId) {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('resultsContainer').innerHTML = `
+          <p style="font-size:16px; color:#555;">
+            You are not logged in. Login to find your HeartSouls.
+          </p>
+        `;
+      });
+    }
+
+    // Search users function
+    async function searchUsers() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) {
+        alert('Enter a name or detail to find new HeartSouls');
+        return;
+      }
+      try {
+        // Example: GET /searchUsers?userId=xxx&query=yyy
+        const res = await fetch(`${API_URL}/searchUsers?userId=${userId}&query=${query}`);
+        if (!res.ok) {
+          alert('Error searching users');
+          return;
+        }
+        const users = await res.json();
+        displayResults(users);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // Display search results
+    function displayResults(users) {
+      const container = document.getElementById('resultsContainer');
+      container.innerHTML = ''; // Clear old results
+
+      if (users.length === 0) {
+        container.innerHTML = `<p>No users found matching your search.</p>`;
+        return;
+      }
+
+      users.forEach(user => {
+        // user might have { _id, name, mutualFriendsCount, etc. }
+        const userCard = document.createElement('div');
+        userCard.classList.add('user-card');
+
+        userCard.innerHTML = `
+          <div class="user-info">
+            <h3>${user.name}</h3>
+            <p class="mutual-friends">
+              Mutual friends: ${user.mutualFriendsCount || 0}
+            </p>
+          </div>
+          <button class="add-button" onclick="addHeartsoul('${user._id}')">Add HeartSoul</button>
+        `;
+
+        container.appendChild(userCard);
+      });
+    }
+
+    // Add friend (Heartsoul)
+    async function addHeartsoul(targetUserId) {
+      try {
+        // Example: POST /addHeartsoul
+        const res = await fetch(`${API_URL}/addHeartsoul`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, targetUserId })
+        });
+        if (!res.ok) {
+          alert('Error adding HeartSoul');
+          return;
+        }
+        alert('HeartSoul added successfully!');
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
