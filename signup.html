@@ -86,11 +86,11 @@
     <div class="signup-card">
       <h2>Create Your Account</h2>
       <form id="signupForm" class="signup-form">
-        <!-- Name -->
+        <!-- Example fields: Name, Gender, DOB, Email, Phone, Password, Location -->
+        
         <label for="name">Name</label>
         <input type="text" id="name" placeholder="Your full name" required>
 
-        <!-- Gender -->
         <label for="gender">Gender</label>
         <select id="gender" required>
           <option value="">Select Gender</option>
@@ -99,23 +99,18 @@
           <option value="Other">Other</option>
         </select>
 
-        <!-- Date of Birth -->
         <label for="dob">Date of Birth</label>
         <input type="date" id="dob" required>
 
-        <!-- Email -->
         <label for="email">Email</label>
         <input type="email" id="email" placeholder="Your email address">
 
-        <!-- Mobile Number -->
         <label for="phone">Mobile No.</label>
         <input type="tel" id="phone" placeholder="Your phone number">
 
-        <!-- Password -->
         <label for="password">Password</label>
         <input type="password" id="password" placeholder="Create a password" required>
 
-        <!-- Location -->
         <label for="location">Location</label>
         <input type="text" id="location" placeholder="Your location">
         
@@ -128,7 +123,7 @@
   </main>
 
   <script>
-    const API_URL = "https://heartspace-backend.onrender.com"; // Change if needed
+    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust if needed
 
     document.getElementById('signupForm').addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -142,6 +137,7 @@
       const location = document.getElementById('location').value;
 
       try {
+        // Example: POST /register
         const response = await fetch(`${API_URL}/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -155,16 +151,21 @@
             location
           })
         });
-        
+
         if (!response.ok) {
-          alert('Sign-up failed. Email or phone might already be taken, or fields invalid.');
+          alert('Sign-up failed. Fields invalid or user already exists.');
           return;
         }
-        
+
         const data = await response.json();
         alert('Account created successfully!');
-        // Optionally redirect to login or profile
-        // window.location.href = 'login.html';
+
+        // Optionally store userId in localStorage if your backend returns it:
+        // localStorage.setItem('userId', data.userId);
+
+        // Redirect to profile page on success
+        window.location.href = 'profile.html';
+
       } catch (error) {
         alert('Error signing up.');
         console.error(error);
