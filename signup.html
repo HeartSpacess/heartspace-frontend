@@ -66,7 +66,19 @@
         alert('Error signing up.');
         console.error(error);
       }
+      const response = await fetch(`${API_URL}/register`, {...});
+if (response.ok) {
+  const data = await response.json(); 
+  // data might contain user info or a token
+  // store token or user ID in localStorage
+  localStorage.setItem('userId', data.user._id);
+  // or localStorage.setItem('token', data.token);
+  // Redirect to profile page
+  window.location.href = 'profile.html';
+}
+
     });
+    
   </script>
 </body>
 </html>
