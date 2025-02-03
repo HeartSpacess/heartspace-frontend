@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HeartSpace - Find Friends</title>
   <style>
     body {
@@ -42,12 +42,17 @@
       max-width: 600px;
       text-align: left;
     }
-    /* Search Bar */
+    .heading {
+      color: #1976d2;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    /* Search bar */
     .search-bar {
       display: flex;
       align-items: center;
-      margin-bottom: 20px;
       gap: 10px;
+      margin-bottom: 20px;
     }
     .search-bar input {
       flex: 1;
@@ -67,8 +72,9 @@
     .search-bar button:hover {
       background-color: #125aa6;
     }
+    /* Results Container */
     .results-container {
-      margin-top: 20px;
+      margin-top: 10px;
     }
     .user-card {
       background-color: #f9f9f9;
@@ -110,7 +116,7 @@
 <body>
   <!-- Header -->
   <header>
-    <h1>Find HeartSouls</h1>
+    <h1>Find Friends</h1>
   </header>
 
   <!-- Navigation -->
@@ -120,47 +126,38 @@
     <a href="friends.html">Find Friends</a>
   </nav>
 
-  <!-- Main Content -->
   <main>
+    <!-- Big heading -->
+    <div class="heading">Search for a HeartSoul</div>
+
     <!-- Search Bar -->
     <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search users...">
-      <button onclick="searchUsers()">Search</button>
+      <input type="text" id="searchInput" placeholder="Type a username...">
+      <button onclick="searchUser()">Search</button>
     </div>
 
     <!-- Results Container -->
     <div class="results-container" id="resultsContainer">
-      <!-- Searched users will appear here -->
+      <!-- Matching profile(s) will appear here -->
     </div>
   </main>
 
   <script>
-    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust if needed
-    const userId = localStorage.getItem('userId'); // Suppose user logs in / signs up
+    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust to your backend
 
-    // If user not logged in, show a placeholder
-    if (!userId) {
-      document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('resultsContainer').innerHTML = `
-          <p style="font-size:16px; color:#555;">
-            You are not logged in. Login to find your HeartSouls.
-          </p>
-        `;
-      });
-    }
-
-    // Search users function
-    async function searchUsers() {
+    // On button click, fetch a user by name (partial or exact)
+    async function searchUser() {
       const query = document.getElementById('searchInput').value.trim();
       if (!query) {
-        alert('Enter a name or detail to find new HeartSouls');
+        alert('Enter a username to search');
         return;
       }
       try {
-        // Example: GET /searchUsers?userId=xxx&query=yyy
-        const res = await fetch(`${API_URL}/searchUsers?userId=${userId}&query=${query}`);
+        // Example: GET /searchUser?username=xxx
+        // Or GET /searchUsers if you allow partial matches or multiple results
+        const res = await fetch(`${API_URL}/searchUser?username=${encodeURIComponent(query)}`);
         if (!res.ok) {
-          alert('Error searching users');
+          alert('Error searching user');
           return;
         }
         const users = await res.json();
@@ -170,13 +167,13 @@
       }
     }
 
-    // Display search results
     function displayResults(users) {
+      // Could be a single user or multiple
       const container = document.getElementById('resultsContainer');
-      container.innerHTML = ''; // Clear old results
+      container.innerHTML = '';
 
       if (users.length === 0) {
-        container.innerHTML = `<p>No users found matching your search.</p>`;
+        container.innerHTML = `<p>No user found with that username.</p>`;
         return;
       }
 
@@ -187,10 +184,8 @@
 
         userCard.innerHTML = `
           <div class="user-info">
-            <h3>${user.name}</h3>
-            <p class="mutual-friends">
-              Mutual friends: ${user.mutualFriendsCount || 0}
-            </p>
+            <h3>${user.name || "Unknown"}</h3>
+            <p class="mutual-friends">Mutual friends: ${user.mutualFriendsCount || 0}</p>
           </div>
           <button class="add-button" onclick="addHeartsoul('${user._id}')">Add HeartSoul</button>
         `;
@@ -199,23 +194,22 @@
       });
     }
 
-    // Add friend (Heartsoul)
+    // Add HeartSoul
     async function addHeartsoul(targetUserId) {
-      try {
-        // Example: POST /addHeartsoul
-        const res = await fetch(`${API_URL}/addHeartsoul`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, targetUserId })
-        });
-        if (!res.ok) {
-          alert('Error adding HeartSoul');
-          return;
-        }
+      alert(`Adding user ${targetUserId} as HeartSoul (placeholder)`);
+      // Real logic might do:
+      /*
+      const res = await fetch(`${API_URL}/addHeartsoul`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, targetUserId })
+      });
+      if (res.ok) {
         alert('HeartSoul added successfully!');
-      } catch (error) {
-        console.error(error);
+      } else {
+        alert('Error adding HeartSoul');
       }
+      */
     }
   </script>
 </body>
