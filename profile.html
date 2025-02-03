@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- Ensure mobile-friendly scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HeartSpace - My Profile</title>
   <style>
     body {
@@ -9,6 +11,7 @@
       background-color: white;
       font-family: Arial, sans-serif;
     }
+
     header {
       background-color: #1976d2;
       color: white;
@@ -19,32 +22,41 @@
       margin: 0;
       font-size: 28px;
     }
-    /* Navigation bar with 3 headings (community, profile, find friends) */
+
+    /* Navigation bar (community, profile, find friends) */
     nav {
       display: flex;
       justify-content: center;
       gap: 30px;
       padding: 10px;
       background-color: #f4f4f4;
+      flex-wrap: wrap; /* wraps on smaller screens */
     }
     nav a {
       text-decoration: none;
       color: #1976d2;
       font-size: 18px;
       font-weight: bold;
+      margin: 5px 0; /* small margin for wrap scenario */
     }
     nav a:hover {
       color: #125aa6;
     }
+
+    /* Main container with fluid width */
     main {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px;
+      /* fluid layout for mobile */
+      margin: 20px auto;
+      width: 90%;
+      max-width: 600px;
     }
+
     .profile-card {
       background-color: #f9f9f9;
-      width: 320px;
+      width: 100%; /* full width of the container */
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -69,6 +81,7 @@
       display: block;
       margin: 0 auto 15px auto;
     }
+
     .upload-section {
       margin-top: 10px;
     }
@@ -90,7 +103,7 @@
     /* My Posts section */
     .my-posts {
       background-color: #f9f9f9;
-      width: 320px;
+      width: 100%; /* full width of the container */
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -114,6 +127,23 @@
     }
     .post-item small {
       color: #777;
+    }
+
+    /* Media query for screens <= 480px */
+    @media (max-width: 480px) {
+      nav a {
+        font-size: 16px;
+      }
+      .button {
+        font-size: 13px;
+      }
+      .profile-card h2, .my-posts h3 {
+        font-size: 20px;
+      }
+      .profile-pic {
+        width: 100px;
+        height: 100px;
+      }
     }
   </style>
 </head>
@@ -157,9 +187,7 @@
 
   <script>
     const API_URL = "https://heartspace-backend.onrender.com"; // your actual backend
-    // If you stored userData from signup
     const userDataStr = localStorage.getItem('userData');
-    // Or if you store only userId from login
     const userId = localStorage.getItem('userId');
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -168,6 +196,7 @@
         // window.location.href = 'signup.html';
         return;
       }
+
       // Display user info from localStorage userData (if present)
       if (userDataStr) {
         const userData = JSON.parse(userDataStr);
