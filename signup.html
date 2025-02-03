@@ -86,10 +86,10 @@
     <div class="signup-card">
       <h2>Create Your Account</h2>
       <form id="signupForm" class="signup-form">
-        <!-- Example fields: Name, Gender, DOB, Email, Phone, Password, Location -->
+        <!-- Fields: Name, Gender, DOB, Email, Phone, Password, Location -->
         
         <label for="name">Name</label>
-        <input type="text" id="name" placeholder="Your full name" required>
+        <input type="text" id="name" required>
 
         <label for="gender">Gender</label>
         <select id="gender" required>
@@ -109,7 +109,7 @@
         <input type="tel" id="phone" placeholder="Your phone number">
 
         <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Create a password" required>
+        <input type="password" id="password" required>
 
         <label for="location">Location</label>
         <input type="text" id="location" placeholder="Your location">
@@ -123,11 +123,13 @@
   </main>
 
   <script>
-    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust if needed
+    // If you have a backend, set your API URL here
+    const API_URL = "https://heartspace-backend.onrender.com"; 
 
     document.getElementById('signupForm').addEventListener('submit', async (event) => {
       event.preventDefault();
 
+      // Gather user info
       const name = document.getElementById('name').value;
       const gender = document.getElementById('gender').value;
       const dob = document.getElementById('dob').value;
@@ -137,33 +139,15 @@
       const location = document.getElementById('location').value;
 
       try {
-        // Example: POST /register
-        const response = await fetch(`${API_URL}/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            name,
-            gender,
-            dob,
-            email,
-            phone,
-            password,
-            location
-          })
-        });
+        // OPTIONAL: If you want to store in the backend:
+        // const response = await fetch(`${API_URL}/register`, {...});
+        // if (!response.ok) { alert('Sign-up failed'); return; }
+        // Example: store data in localStorage to use in profile
+        const userData = { name, gender, dob, email, phone, password, location };
+        localStorage.setItem('userData', JSON.stringify(userData));
 
-        if (!response.ok) {
-          alert('Sign-up failed. Fields invalid or user already exists.');
-          return;
-        }
-
-        const data = await response.json();
         alert('Account created successfully!');
-
-        // Optionally store userId in localStorage if your backend returns it:
-        // localStorage.setItem('userId', data.userId);
-
-        // Redirect to profile page on success
+        // Redirect to profile.html
         window.location.href = 'profile.html';
 
       } catch (error) {

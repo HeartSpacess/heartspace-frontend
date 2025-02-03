@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Profile | HeartSpace</title>
+  <meta charset="UTF-8">
+  <title>HeartSpace - My Profile</title>
   <style>
     body {
       margin: 0;
@@ -20,42 +19,59 @@
       margin: 0;
       font-size: 28px;
     }
-
+    /* Navigation bar with 3 headings (community, profile, find friends) if you want */
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 10px;
+      background-color: #f4f4f4;
+    }
+    nav a {
+      text-decoration: none;
+      color: #1976d2;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    nav a:hover {
+      color: #125aa6;
+    }
     main {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
-      margin-top: 30px; /* Extra spacing for clarity */
+      padding: 40px 20px;
     }
     .profile-card {
       background-color: #f9f9f9;
-      width: 350px;
+      width: 320px;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: left;
+      margin-bottom: 20px;
+    }
+    .profile-card h2 {
       text-align: center;
-      margin-bottom: 20px; /* Space before other sections */
+      margin-top: 0;
+      color: #1976d2;
+      margin-bottom: 20px;
+    }
+    .profile-info p {
+      margin: 5px 0;
+      color: #555;
     }
     .profile-pic {
       width: 120px;
       height: 120px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 15px;
+      display: block;
+      margin: 0 auto 15px auto;
     }
-    .user-info {
+    .upload-section {
       margin-top: 10px;
-      text-align: left;
     }
-    .user-info p {
-      margin: 5px 0;
-      color: #555;
-    }
-    .user-info strong {
-      color: #1976d2;
-    }
-
     .button {
       display: inline-block;
       background-color: #1976d2;
@@ -70,47 +86,6 @@
     .button:hover {
       background-color: #125aa6;
     }
-
-    /* Upload New Photo Section */
-    .upload-pic {
-      margin-top: 15px;
-      text-align: left;
-    }
-    .upload-pic label {
-      font-weight: bold;
-      color: #1976d2;
-      display: block;
-      margin-bottom: 5px;
-    }
-    .upload-pic input[type="file"] {
-      margin-bottom: 10px;
-    }
-
-    /* HeartSouls list */
-    .heartsouls-list {
-      width: 350px;
-      background-color: #f9f9f9;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 20px;
-      display: none; /* hidden until user clicks see heartsouls */
-    }
-    .heartsouls-list h2 {
-      margin-top: 0;
-      color: #1976d2;
-    }
-    .friend-item {
-      background-color: #fff;
-      border-radius: 5px;
-      padding: 8px;
-      margin-bottom: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .friend-item p {
-      margin: 5px 0;
-      color: #333;
-    }
   </style>
 </head>
 <body>
@@ -118,178 +93,71 @@
     <h1>My Profile</h1>
   </header>
 
+  <!-- Optional Nav Bar -->
+  <nav>
+    <a href="community.html">Community</a>
+    <a href="profile.html">My Profile</a>
+    <a href="friends.html">Find Friends</a>
+  </nav>
+
   <main>
-    <!-- Profile Card -->
-    <div class="profile-card" id="profileCard">
-      <img src="default-avatar.png" alt="Profile Picture" class="profile-pic" id="profilePic">
+    <div class="profile-card">
+      <h2>Welcome!</h2>
+      <img id="profilePic" class="profile-pic" src="default-avatar.png" alt="Profile Picture">
       
-      <div class="user-info">
-        <p><strong>Name:</strong> <span id="profileName">John Doe</span></p>
-        <p><strong>Gender:</strong> <span id="profileGender">Male</span></p>
-        <p><strong>Date of Birth:</strong> <span id="profileDOB">1995-05-05</span></p>
-        <p><strong>Email/Phone:</strong> <span id="profileContact">johndoe@example.com</span></p>
-        <p><strong>Location:</strong> <span id="profileLocation">New York, USA</span></p>
+      <div class="profile-info" id="profileInfo">
+        <!-- We will fill in user details from localStorage -->
       </div>
 
-      <!-- Buttons: Edit Public Details & See HeartSouls -->
-      <button class="button" onclick="editPublicDetails()">Edit Public Details</button>
-      <button class="button" onclick="showHeartSouls()">See HeartSouls</button>
-
-      <!-- Upload New Photo Section -->
-      <div class="upload-pic">
-        <label for="profilePicInput">Upload New Photo</label>
-        <input type="file" id="profilePicInput" accept="image/*">
-        <button class="button" onclick="updatePhoto()">Update Photo</button>
+      <div class="upload-section">
+        <label for="photoInput">Add/Update Profile Photo</label>
+        <input type="file" id="photoInput" accept="image/*">
+        <button class="button" onclick="updatePhoto()">Upload Photo</button>
       </div>
     </div>
-
-    <!-- HeartSouls List Section -->
-    <div class="heartsouls-list" id="heartsoulsList">
-      <h2>Your HeartSouls</h2>
-      <div id="friendsContainer"><!-- Friends list goes here --></div>
-    </div>
-
-    <!-- Optionally, you could also list user posts here if desired -->
   </main>
 
   <script>
-    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust as needed
-    const userId = localStorage.getItem('userId');
-
+    // On page load, retrieve user info from localStorage
     document.addEventListener('DOMContentLoaded', () => {
-      if (!userId) {
-        console.log("No userId found. Redirecting to login...");
-        // window.location.href = 'login.html';
-      } else {
-        loadProfile();
-      }
-    });
-
-    // Load user data into profile
-    async function loadProfile() {
-      try {
-        const res = await fetch(`${API_URL}/user/${userId}`);
-        if (!res.ok) {
-          console.log("Error loading profile");
-          return;
-        }
-        const userData = await res.json();
-
-        document.getElementById('profileName').innerText = userData.name || 'N/A';
-        document.getElementById('profileGender').innerText = userData.gender || 'N/A';
-        document.getElementById('profileDOB').innerText = userData.dob || 'N/A';
-        document.getElementById('profileContact').innerText = userData.email ? userData.email : userData.phone;
-        document.getElementById('profileLocation').innerText = userData.location || 'N/A';
-
-        if (userData.profilePic) {
-          document.getElementById('profilePic').src = userData.profilePic;
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    // Edit public details (Name, Location, etc.)
-    async function editPublicDetails() {
-      // Prompt for new name, location, etc.
-      const newName = prompt("Enter new public name:", document.getElementById('profileName').innerText);
-      const newLocation = prompt("Enter new public location:", document.getElementById('profileLocation').innerText);
-
-      // We can also ask for other fields if needed
-      if (!newName && !newLocation) return; // If user canceled or all empty
-
-      try {
-        // Example: POST /updatePublicDetails
-        const res = await fetch(`${API_URL}/updatePublicDetails`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId,
-            name: newName,
-            location: newLocation
-          })
-        });
-        if (res.ok) {
-          alert('Public details updated!');
-          loadProfile(); // refresh
-        } else {
-          alert('Failed to update details.');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    // Show HeartSouls (friends)
-    async function showHeartSouls() {
-      const listSection = document.getElementById('heartsoulsList');
-      listSection.style.display = listSection.style.display === 'none' ? 'block' : 'none';
-
-      // If we're just toggling visibility, only load if we're showing them
-      if (listSection.style.display === 'block') {
-        loadHeartSouls();
-      }
-    }
-
-    // Load the user's HeartSouls/friends
-    async function loadHeartSouls() {
-      try {
-        // Example: GET /getHeartSouls?userId=xxx
-        const res = await fetch(`${API_URL}/getHeartSouls?userId=${userId}`);
-        if (!res.ok) {
-          console.log("Error loading heartsouls");
-          return;
-        }
-        const friends = await res.json();
-        const friendsContainer = document.getElementById('friendsContainer');
-        friendsContainer.innerHTML = '';
-
-        if (friends.length === 0) {
-          friendsContainer.innerHTML = `<p>You have no HeartSouls yet.</p>`;
-          return;
-        }
-
-        // Create a card for each friend
-        friends.forEach(friend => {
-          const friendDiv = document.createElement('div');
-          friendDiv.classList.add('friend-item');
-          friendDiv.innerHTML = `
-            <p><strong>${friend.name}</strong></p>
-            <p>Email/Phone: ${friend.email || friend.phone || 'N/A'}</p>
-          `;
-          friendsContainer.appendChild(friendDiv);
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    // Update profile photo
-    async function updatePhoto() {
-      const fileInput = document.getElementById('profilePicInput');
-      const file = fileInput.files[0];
-      if (!file) {
-        alert('No file selected!');
+      const userDataStr = localStorage.getItem('userData');
+      if (!userDataStr) {
+        // If no user data found, maybe redirect or show a message
+        alert('No user data found. Please sign up first.');
+        // window.location.href = 'signup.html';
         return;
       }
-      // Example: POST /user/:id/photo
-      /*
-      const formData = new FormData();
-      formData.append('profilePic', file);
+      const userData = JSON.parse(userDataStr);
 
-      const res = await fetch(`${API_URL}/user/${userId}/photo`, {
-        method: 'POST',
-        body: formData
-      });
-      if (res.ok) {
-        const data = await res.json();
-        alert('Photo updated successfully!');
-        document.getElementById('profilePic').src = data.profilePicUrl;
-      } else {
-        alert('Failed to update photo');
+      // Build HTML to display user info
+      let infoHTML = '';
+      infoHTML += `<p><strong>Name:</strong> ${userData.name || 'N/A'}</p>`;
+      infoHTML += `<p><strong>Gender:</strong> ${userData.gender || 'N/A'}</p>`;
+      infoHTML += `<p><strong>Date of Birth:</strong> ${userData.dob || 'N/A'}</p>`;
+      infoHTML += `<p><strong>Email/Phone:</strong> ${userData.email || userData.phone || 'N/A'}</p>`;
+      infoHTML += `<p><strong>Location:</strong> ${userData.location || 'N/A'}</p>`;
+
+      document.getElementById('profileInfo').innerHTML = infoHTML;
+    });
+
+    // A placeholder function to handle photo upload
+    function updatePhoto() {
+      const fileInput = document.getElementById('photoInput');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('No photo selected!');
+        return;
       }
-      */
-      alert('Photo updated! (Placeholder: implement backend logic)');
+      // If you want to show a preview:
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('profilePic').src = e.target.result;
+      }
+      reader.readAsDataURL(file);
+
+      // If you want to store it in localStorage or send to a backend, do so here
+      // e.g., localStorage.setItem('profilePhoto', e.target.result);
+      alert('Profile photo updated (preview only).');
     }
   </script>
 </body>
