@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <!-- Mobile-friendly scaling -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HeartSpace - Login</title>
   <style>
     body {
@@ -17,12 +16,7 @@
       padding: 20px;
       text-align: center;
     }
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
     main {
-      /* fluid layout for mobile */
       margin: 40px auto;
       width: 90%;
       max-width: 600px;
@@ -33,7 +27,7 @@
     .login-card {
       background-color: #f9f9f9;
       width: 100%;
-      max-width: 320px; /* ensures it doesn't stretch too wide */
+      max-width: 320px;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -41,7 +35,6 @@
     }
     .login-card h2 {
       text-align: center;
-      margin-top: 0;
       color: #1976d2;
       margin-bottom: 20px;
     }
@@ -54,20 +47,18 @@
       width: 100%;
       padding: 8px;
       margin-bottom: 15px;
-      box-sizing: border-box;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
     .button {
-      display: inline-block;
       background-color: #1976d2;
       color: white;
-      padding: 10px 20px;
+      padding: 10px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
-      width: 100%; /* full width button */
+      width: 100%;
     }
     .button:hover {
       background-color: #125aa6;
@@ -81,43 +72,21 @@
       color: #1976d2;
       font-weight: bold;
     }
-
-    /* Media query for screens <= 480px */
-    @media (max-width: 480px) {
-      header h1 {
-        font-size: 24px;
-      }
-      .button {
-        font-size: 14px;
-      }
-    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Welcome Back to HeartSpace</h1>
+    Welcome Back to HeartSpace
   </header>
   <main>
     <div class="login-card">
       <h2>Login to Your Account</h2>
       <form id="loginForm" class="login-form">
-        <!-- Email or Phone -->
         <label for="identifier">Email or Phone</label>
-        <input 
-          type="text" 
-          id="identifier" 
-          placeholder="Enter your email or phone" 
-          required
-        >
+        <input type="text" id="identifier" placeholder="Enter your email or phone" required>
 
-        <!-- Password -->
         <label for="password">Password</label>
-        <input 
-          type="password" 
-          id="password" 
-          placeholder="Enter your password" 
-          required
-        >
+        <input type="password" id="password" placeholder="Enter your password" required>
         
         <button type="submit" class="button">Login</button>
       </form>
@@ -128,40 +97,30 @@
   </main>
 
   <script>
-    const API_URL = "https://heartspace-backend.onrender.com"; // Change to your actual backend URL
-
-    document.getElementById('loginForm').addEventListener('submit', async (event) => {
+    document.getElementById('loginForm').addEventListener('submit', (event) => {
       event.preventDefault();
 
-      const identifier = document.getElementById('identifier').value; // user email/phone
-      const password = document.getElementById('password').value;
+      const identifier = document.getElementById('identifier').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-      try {
-        // Example POST request to /login
-        const response = await fetch(`${API_URL}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ identifier, password })
-        });
-        
-        if (!response.ok) {
-          alert('Login failed. Please check your credentials.');
-          return;
-        }
-        
-        // If success, possibly get user data or token
-        const data = await response.json();
-        alert('Login successful!');
+      // Retrieve stored users
+      let allUsers = JSON.parse(localStorage.getItem('heartspaceUsers')) || [];
 
-        // Optionally store userId to localStorage if needed
-        // localStorage.setItem('userId', data.userId);
+      // Find the user
+      const matchedUser = allUsers.find(user => 
+        (user.email === identifier || user.phone === identifier) && user.password === password
+      );
 
-        // Redirect to profile page
-        window.location.href = 'profile.html';
-      } catch (error) {
-        alert('Error logging in.');
-        console.error(error);
+      if (!matchedUser) {
+        alert('Login failed. Incorrect email/phone or password.');
+        return;
       }
+
+      // Store current session user
+      localStorage.setItem('currentUser', JSON.stringify(matchedUser));
+
+      alert('Login successful! Redirecting...');
+      window.location.href = 'profile.html';
     });
   </script>
 </body>

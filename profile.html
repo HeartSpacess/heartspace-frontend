@@ -2,75 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Ensure mobile-friendly scaling -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HeartSpace - My Profile</title>
   <style>
     body {
       margin: 0;
-      background-color: white;
       font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
     }
-
     header {
       background-color: #1976d2;
       color: white;
       padding: 20px;
       text-align: center;
+      font-size: 22px;
+      font-weight: bold;
     }
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    /* Navigation bar (community, profile, find friends) */
     nav {
       display: flex;
       justify-content: center;
       gap: 30px;
-      padding: 10px;
-      background-color: #f4f4f4;
-      flex-wrap: wrap; /* wraps on smaller screens */
+      padding: 15px;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
     nav a {
       text-decoration: none;
       color: #1976d2;
       font-size: 18px;
       font-weight: bold;
-      margin: 5px 0; /* small margin for wrap scenario */
+      padding-bottom: 5px;
+      position: relative;
     }
-    nav a:hover {
-      color: #125aa6;
+    nav a.active::after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 3px;
+      background-color: #1976d2;
+      position: absolute;
+      bottom: -2px;
+      left: 0;
     }
-
-    /* Main container with fluid width */
     main {
       display: flex;
       flex-direction: column;
       align-items: center;
-      /* fluid layout for mobile */
       margin: 20px auto;
       width: 90%;
       max-width: 600px;
     }
-
-    .profile-card {
-      background-color: #f9f9f9;
-      width: 100%; /* full width of the container */
+    .profile-card, .my-posts {
+      background-color: white;
+      width: 100%;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      text-align: left;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      text-align: center;
       margin-bottom: 20px;
     }
     .profile-card h2 {
-      text-align: center;
-      margin-top: 0;
       color: #1976d2;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+    }
+    .profile-info {
+      text-align: left;
+      margin-top: 10px;
     }
     .profile-info p {
       margin: 5px 0;
+      font-size: 16px;
       color: #555;
     }
     .profile-pic {
@@ -79,208 +80,143 @@
       border-radius: 50%;
       object-fit: cover;
       display: block;
-      margin: 0 auto 15px auto;
-    }
-
-    .upload-section {
-      margin-top: 10px;
+      margin: 0 auto 15px;
+      border: 3px solid #1976d2;
     }
     .button {
-      display: inline-block;
       background-color: #1976d2;
       color: white;
-      padding: 8px 14px;
+      padding: 10px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 16px;
       margin-top: 10px;
     }
     .button:hover {
       background-color: #125aa6;
     }
-
-    /* My Posts section */
-    .my-posts {
-      background-color: #f9f9f9;
-      width: 100%; /* full width of the container */
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      text-align: left;
+    .upload-section {
+      margin-top: 10px;
+    }
+    .upload-section input {
+      display: block;
+      margin: 10px auto;
+    }
+    .logout-button {
+      background-color: red;
+      padding: 8px 14px;
+      font-size: 14px;
+    }
+    .logout-button:hover {
+      background-color: darkred;
     }
     .my-posts h3 {
       color: #1976d2;
-      margin-top: 0;
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 10px;
     }
     .post-item {
-      background: #fff;
+      background: #f9f9f9;
       padding: 10px;
       border-radius: 5px;
       margin-bottom: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      text-align: left;
     }
     .post-item p {
       margin: 5px 0;
+      font-size: 14px;
       color: #333;
     }
     .post-item small {
       color: #777;
     }
-
-    /* Media query for screens <= 480px */
-    @media (max-width: 480px) {
-      nav a {
-        font-size: 16px;
-      }
-      .button {
-        font-size: 13px;
-      }
-      .profile-card h2, .my-posts h3 {
-        font-size: 20px;
-      }
-      .profile-pic {
-        width: 100px;
-        height: 100px;
-      }
-    }
   </style>
 </head>
 <body>
   <header>
-    <h1>My Profile</h1>
+    My Profile
   </header>
 
-  <!-- Nav Bar -->
   <nav>
+    <a href="index.html">Home</a>
     <a href="community.html">Community</a>
-    <a href="profile.html">My Profile</a>
-    <a href="friends.html">Find Friends</a>
+    <a href="profile.html" class="active">My Profile</a>
+    <a href="friends.html">Find HeartSouls</a>
   </nav>
 
   <main>
-    <!-- Profile Card -->
     <div class="profile-card">
       <h2>Welcome!</h2>
       <img id="profilePic" class="profile-pic" src="default-avatar.png" alt="Profile Picture">
-      
-      <div class="profile-info" id="profileInfo">
-        <!-- We will fill in user details from localStorage or backend -->
-      </div>
-
       <div class="upload-section">
-        <label for="photoInput">Add/Update Profile Photo</label>
         <input type="file" id="photoInput" accept="image/*">
         <button class="button" onclick="updatePhoto()">Upload Photo</button>
       </div>
+      <div class="profile-info" id="profileInfo"></div>
+      <button class="button logout-button" onclick="logout()">Logout</button>
     </div>
 
-    <!-- My Posts Section -->
     <div class="my-posts">
       <h3>My Posts</h3>
-      <div id="myPostsContainer">
-        <!-- We'll load user’s own posts here -->
-      </div>
+      <div id="myPostsContainer"></div>
     </div>
   </main>
 
   <script>
-    const API_URL = "https://heartspace-backend.onrender.com"; // your actual backend
-    const userDataStr = localStorage.getItem('userData');
-    const userId = localStorage.getItem('userId');
-
     document.addEventListener('DOMContentLoaded', () => {
-      if (!userDataStr && !userId) {
-        alert('No user data found. Please sign up or log in first.');
-        // window.location.href = 'signup.html';
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+      if (!currentUser) {
+        alert("No user is logged in. Redirecting to login...");
+        window.location.href = 'login.html';
         return;
       }
 
-      // Display user info from localStorage userData (if present)
-      if (userDataStr) {
-        const userData = JSON.parse(userDataStr);
-        let infoHTML = '';
-        infoHTML += `<p><strong>Name:</strong> ${userData.name || 'N/A'}</p>`;
-        infoHTML += `<p><strong>Gender:</strong> ${userData.gender || 'N/A'}</p>`;
-        infoHTML += `<p><strong>Date of Birth:</strong> ${userData.dob || 'N/A'}</p>`;
-        infoHTML += `<p><strong>Email/Phone:</strong> ${userData.email || userData.phone || 'N/A'}</p>`;
-        infoHTML += `<p><strong>Location:</strong> ${userData.location || 'N/A'}</p>`;
-        document.getElementById('profileInfo').innerHTML = infoHTML;
-      }
+      document.getElementById('profileInfo').innerHTML = `
+        <p><strong>Name:</strong> ${currentUser.name}</p>
+        <p><strong>Gender:</strong> ${currentUser.gender}</p>
+        <p><strong>DOB:</strong> ${currentUser.dob}</p>
+        <p><strong>Email/Phone:</strong> ${currentUser.email || currentUser.phone}</p>
+        <p><strong>Location:</strong> ${currentUser.location}</p>
+      `;
 
-      // Optionally load user info from backend if you have userId
-      // loadProfileInfoFromBackend();
+      document.getElementById('profilePic').src = currentUser.profilePic || "default-avatar.png";
 
-      // Load user’s posts if we have userId
-      if (userId) {
-        loadMyPosts();
-      }
+      loadMyPosts();
     });
 
-    // (Optional) Load user info from backend if you prefer
-    async function loadProfileInfoFromBackend() {
-      try {
-        const res = await fetch(`${API_URL}/user/${userId}`);
-        if (!res.ok) return;
-        const userData = await res.json();
-        document.getElementById('profileInfo').innerHTML = `
-          <p><strong>Name:</strong> ${userData.name || 'N/A'}</p>
-          <p><strong>Email/Phone:</strong> ${userData.email || userData.phone || 'N/A'}</p>
-          <p><strong>Location:</strong> ${userData.location || 'N/A'}</p>
-        `;
-        if (userData.profilePic) {
-          document.getElementById('profilePic').src = userData.profilePic;
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
+    function loadMyPosts() {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      const allPosts = JSON.parse(localStorage.getItem('heartspacePosts')) || [];
+      const myPostsContainer = document.getElementById('myPostsContainer');
+      myPostsContainer.innerHTML = '';
 
-    // Load only this user’s posts
-    async function loadMyPosts() {
-      try {
-        const res = await fetch(`${API_URL}/posts?userId=${userId}`);
-        if (!res.ok) return;
-        const posts = await res.json();
-        const container = document.getElementById('myPostsContainer');
-        container.innerHTML = '';
+      const userPosts = allPosts.filter(post => post.name === currentUser.name);
 
-        if (posts.length === 0) {
-          container.innerHTML = `<p>You haven't posted anything yet.</p>`;
-          return;
-        }
-
-        posts.forEach(post => {
-          const postDiv = document.createElement('div');
-          postDiv.classList.add('post-item');
-          postDiv.innerHTML = `
-            <p>${post.content}</p>
-            <small>Posted on: ${new Date(post.createdAt).toLocaleString()}</small>
-          `;
-          container.appendChild(postDiv);
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    // Photo upload preview
-    function updatePhoto() {
-      const fileInput = document.getElementById('photoInput');
-      const file = fileInput.files[0];
-      if (!file) {
-        alert('No photo selected!');
+      if (userPosts.length === 0) {
+        myPostsContainer.innerHTML = "<p>You haven't posted anything yet.</p>";
         return;
       }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('profilePic').src = e.target.result;
-      }
-      reader.readAsDataURL(file);
 
-      alert('Profile photo updated (preview only).');
-      // If you want to upload to backend, do so here with FormData
+      userPosts.forEach(post => {
+        const postItem = document.createElement('div');
+        postItem.classList.add('post-item');
+        postItem.innerHTML = `
+          <p><strong>${post.name}</strong></p>
+          <p>${post.content}</p>
+          <small>${post.date}</small>
+        `;
+        myPostsContainer.appendChild(postItem);
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      alert("Logged out successfully!");
+      window.location.href = "login.html";
     }
   </script>
 </body>

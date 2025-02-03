@@ -2,185 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Mobile-friendly viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HeartSpace - Express Emotions</title>
+  <title>Express Your Feelings - HeartSpace</title>
   <style>
-    body {
-      margin: 0;
-      background-color: white;
-      font-family: Arial, sans-serif;
-    }
-    header {
-      background-color: #1976d2;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      padding: 10px;
-      background-color: #f4f4f4;
-      flex-wrap: wrap; /* wraps on smaller screens */
-    }
-    nav a {
-      text-decoration: none;
-      color: #1976d2;
-      font-size: 18px;
-      font-weight: bold;
-      margin: 5px 0;
-    }
-    nav a:hover {
-      color: #125aa6;
-    }
-    main {
-      margin: 20px auto;
-      width: 90%;
-      max-width: 600px; /* fluid layout for mobile */
-      text-align: left;
-    }
-    .express-container {
-      background-color: #f9f9f9;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-    }
-    .express-container h2 {
-      margin-top: 0;
-      color: #1976d2;
-    }
-    .express-container textarea {
-      width: 100%;
-      height: 100px;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-family: Arial, sans-serif;
-    }
-    .file-input {
-      margin-bottom: 10px;
-    }
-    .button {
-      background-color: #1976d2;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .button:hover {
-      background-color: #125aa6;
-    }
-
-    /* Media query for screens <= 480px */
-    @media (max-width: 480px) {
-      nav a {
-        font-size: 16px;
-      }
-      .button {
-        font-size: 14px;
-      }
-      .express-container h2 {
-        font-size: 20px;
-      }
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; }
+    header { background-color: #1976d2; color: white; padding: 20px; text-align: center; font-size: 22px; font-weight: bold; }
+    main { display: flex; flex-direction: column; align-items: center; margin: 20px auto; width: 90%; max-width: 600px; }
+    .post-box { background-color: white; width: 100%; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    textarea { width: 100%; height: 120px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; resize: none; }
+    .button { background-color: #e91e63; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+    .button:hover { background-color: #c2185b; }
+    .info-text { color: #555; font-size: 14px; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Express Your Emotions</h1>
-  </header>
-
-  <!-- Optional Nav -->
-  <nav>
-    <a href="community.html">Community</a>
-    <a href="profile.html">My Profile</a>
-    <a href="friends.html">Find Friends</a>
-  </nav>
+  <header>Express Your Feelings ❤️</header>
 
   <main>
-    <div class="express-container">
-      <h2>Share Your Feelings</h2>
-      <!-- Text area for user's mood/thoughts -->
-      <textarea id="postContent" placeholder="Write what's on your mind..."></textarea>
-
-      <!-- Optional file input if you want uploading images/videos -->
-      <input type="file" id="mediaFile" class="file-input" accept="image/*,video/*" />
-
+    <div class="post-box">
+      <h3>Share Your Love Issues 💖</h3>
+      <p class="info-text">Feeling heartbroken? In love? Express your emotions anonymously.</p>
+      <textarea id="postContent" placeholder="Write your thoughts and love issues here..."></textarea>
       <button class="button" onclick="submitPost()">Post</button>
     </div>
   </main>
 
   <script>
-    const API_URL = "https://heartspace-backend.onrender.com"; // Adjust if needed
-    // Suppose you store user info in localStorage after login
-    const userId = localStorage.getItem('userId') || null;
-    const userName = localStorage.getItem('userName') || "User";
-    const userPic = localStorage.getItem('userPic') || "default-avatar.png";
-
-    async function submitPost() {
-      const content = document.getElementById('postContent').value.trim();
-      const fileInput = document.getElementById('mediaFile');
-      const mediaFile = fileInput.files[0];
-
-      if (!content && !mediaFile) {
-        alert("Please write something or upload a file!");
+    function submitPost() {
+      const postContent = document.getElementById('postContent').value.trim();
+      if (!postContent) {
+        alert("Post cannot be empty!");
         return;
       }
 
-      try {
-        // If your backend accepts form data for file
-        const formData = new FormData();
-        formData.append("userId", userId);
-        formData.append("userName", userName);
-        formData.append("userPic", userPic);
-        formData.append("content", content);
-        if (mediaFile) {
-          formData.append("media", mediaFile);
-        }
-
-        const response = await fetch(`${API_URL}/posts`, {
-          method: 'POST',
-          body: formData
-        });
-
-        // Check the response
-        if (!response.ok) {
-          // Attempt to parse JSON error message, else fallback
-          let errorMsg = "Error creating post.";
-          try {
-            const data = await response.json();
-            if (data && data.message) {
-              errorMsg = data.message;
-            }
-          } catch (err) {
-            // ignoring parsing error, fallback
-          }
-          alert("Could not post: " + errorMsg);
-          return;
-        }
-
-        // If success, show success message
-        alert("Your post is successful, check the main page.");
-        // Clear fields
-        document.getElementById('postContent').value = '';
-        fileInput.value = '';
-
-        // Redirect to community page
-        window.location.href = "community.html";
-      } catch (error) {
-        console.error("submitPost error:", error);
-        alert("Error creating post: " + error.message);
+      const storedUser = JSON.parse(localStorage.getItem('heartspaceUser'));
+      if (!storedUser) {
+        alert("You must be logged in to post!");
+        return;
       }
+
+      const newPost = {
+        name: storedUser.name,
+        profilePic: storedUser.profilePic || "default-avatar.png",
+        content: postContent,
+        date: new Date().toLocaleString()
+      };
+
+      let allPosts = JSON.parse(localStorage.getItem('heartspacePosts')) || [];
+      allPosts.unshift(newPost); // **Adds new posts at the top**
+      localStorage.setItem('heartspacePosts', JSON.stringify(allPosts));
+
+      alert("Your feelings have been shared! ❤️");
+      window.location.href = "community.html";
     }
   </script>
 </body>
