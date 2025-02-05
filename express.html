@@ -21,39 +21,55 @@
   <main>
     <div class="post-box">
       <h3>Share Your Love Issues 💖</h3>
-      <p class="info-text">Feeling heartbroken? In love? Express your emotions anonymously.</p>
+      <p class="info-text">Feeling heartbroken? In love? Express your emotions with the community.</p>
       <textarea id="postContent" placeholder="Write your thoughts and love issues here..."></textarea>
       <button class="button" onclick="submitPost()">Post</button>
     </div>
   </main>
 
   <script>
-    function submitPost() {
+    async function submitPost() {
       const postContent = document.getElementById('postContent').value.trim();
       if (!postContent) {
         alert("Post cannot be empty!");
         return;
       }
 
-      const storedUser = JSON.parse(localStorage.getItem('heartspaceUser'));
-      if (!storedUser) {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
         alert("You must be logged in to post!");
+        window.location.href = "login.html";
         return;
       }
 
-      const newPost = {
-        name: storedUser.name,
-        profilePic: storedUser.profilePic || "default-avatar.png",
-        content: postContent,
-        date: new Date().toLocaleString()
-      };
+      const storedUser = JSON.parse(localStorage.getItem("currentUser"));
 
-      let allPosts = JSON.parse(localStorage.getItem('heartspacePosts')) || [];
-      allPosts.unshift(newPost); // **Adds new posts at the top**
-      localStorage.setItem('heartspacePosts', JSON.stringify(allPosts));
+      try {
+        const response = await fetch("http://localhost:5000/posts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            userId: storedUser._id,
+            name: storedUser.name,
+            profilePic: storedUser.profilePic || "default-avatar.png",
+            content: postContent
+          })
+        });
 
-      alert("Your feelings have been shared! ❤️");
-      window.location.href = "community.html";
+        if (response.ok) {
+          alert("Your feelings have been shared! ❤️");
+          window.location.href = "community.html";
+        } else {
+          alert("Failed to post. Try again.");
+        }
+
+      } catch (error) {
+        console.error("Error posting:", error);
+        alert("Something went wrong. Please try again.");
+      }
     }
   </script>
 </body>

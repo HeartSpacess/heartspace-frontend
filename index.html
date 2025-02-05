@@ -5,15 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HeartSpace - Home</title>
   <style>
-    /* Minimal inline styling; move to style.css if you prefer */
-
     body {
       margin: 0;
-      background-color: white; /* White background */
+      background-color: white;
       font-family: Arial, sans-serif;
     }
     header {
-      background-color: #1976d2; /* Blue header */
+      background-color: #1976d2;
       color: white;
       padding: 20px;
       text-align: center;
@@ -30,7 +28,6 @@
       text-align: center;
       padding: 40px 20px;
     }
-    /* Container for the two boxes */
     .box-container {
       display: flex;
       flex-wrap: wrap;
@@ -60,7 +57,13 @@
       color: #1976d2;
       font-weight: bold;
     }
-    /* Responsive */
+    /* Salam Productions Branding */
+    .branding {
+      margin-top: 40px;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
     @media (max-width: 600px) {
       .box-container {
         flex-direction: column;
@@ -73,32 +76,32 @@
   </style>
 </head>
 <body>
-  <!-- Header Section -->
   <header>
     <h1>Welcome to HeartSpace</h1>
     <p>A place to share what burdens your heart.</p>
   </header>
 
-  <!-- Main Content -->
   <main>
-    <!-- Heading Above the Boxes -->
     <h2 style="color: #1976d2; margin-bottom: 10px;">Speak Out Your Heart</h2>
     <p style="font-size: 16px; color: #555;">Release your burdens and find comfort.</p>
 
-    <!-- Box Container for Sign Up & Login -->
     <div class="box-container">
-      <!-- Box 1: Sign Up -->
       <div class="box">
         <h2>Sign Up</h2>
         <p><a href="signup.html">Join us now</a></p>
       </div>
-
-      <!-- Box 2: Login -->
       <div class="box">
         <h2>Login</h2>
         <p><a href="login.html">Already a member?</a></p>
       </div>
+      <div class="box">
+        <h2>Dashboard</h2>
+        <p><a href="dashboard.html">View Posts</a></p>
+      </div>
     </div>
+
+    <!-- Salam Productions Branding -->
+    <p class="branding">© Salam Productions</p>
   </main>
 </body>
 </html>

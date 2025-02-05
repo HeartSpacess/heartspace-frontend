@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: white;
+      background-color: #f4f4f4;
       margin: 0;
     }
     header {
@@ -15,6 +15,8 @@
       color: white;
       padding: 20px;
       text-align: center;
+      font-size: 22px;
+      font-weight: bold;
     }
     main {
       display: flex;
@@ -24,61 +26,113 @@
       width: 90%;
       max-width: 600px;
     }
-    input {
+    .search-container {
+      display: flex;
       width: 100%;
+      max-width: 400px;
+      margin-bottom: 15px;
+    }
+    input {
+      flex: 1;
       padding: 10px;
       border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-bottom: 10px;
+      border-radius: 5px 0 0 5px;
       font-size: 16px;
     }
+    .search-btn {
+      padding: 10px 15px;
+      border: none;
+      background-color: #1976d2;
+      color: white;
+      font-size: 16px;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+    }
+    .search-btn:hover {
+      background-color: #125aa6;
+    }
     .friend {
-      background: #f9f9f9;
-      padding: 10px;
+      background: white;
+      padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       margin-bottom: 10px;
       text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .friend img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #1976d2;
+      cursor: pointer;
     }
     .friend p {
       margin: 5px 0;
+      flex-grow: 1;
+      font-size: 16px;
     }
     .profile-btn {
       background-color: #1976d2;
       color: white;
-      padding: 5px 10px;
+      padding: 6px 12px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 14px;
+    }
+    .profile-btn:hover {
+      background-color: #125aa6;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Find Friends</h1>
+    <h1>Find HeartSouls 💙</h1>
   </header>
   <main>
-    <input type="text" id="searchBox" placeholder="Search for a friend..." onkeyup="searchProfiles()">
+    <div class="search-container">
+      <input type="text" id="searchBox" placeholder="Search for a friend...">
+      <button class="search-btn" onclick="searchProfiles()">Search</button>
+    </div>
     <div id="friendsList"></div>
   </main>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      displayAllProfiles();
-    });
+    document.addEventListener('DOMContentLoaded', fetchAllUsers);
 
-    function displayAllProfiles() {
-      let users = JSON.parse(localStorage.getItem('heartspaceUsers')) || [];
+    async function fetchAllUsers() {
+      try {
+        const response = await fetch('http://localhost:5000/auth/users');
+        const users = await response.json();
+
+        if (!users || users.length === 0) {
+          document.getElementById('friendsList').innerHTML = "<p>No users found.</p>";
+          return;
+        }
+
+        localStorage.setItem('allUsers', JSON.stringify(users));
+        displayUsers(users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        document.getElementById('friendsList').innerHTML = "<p>Failed to load users.</p>";
+      }
+    }
+
+    function displayUsers(users) {
       let friendsList = document.getElementById('friendsList');
-
       friendsList.innerHTML = "";
+
       users.forEach(user => {
         let friendDiv = document.createElement('div');
         friendDiv.classList.add('friend');
         friendDiv.innerHTML = `
-          <p><strong>${user.name}</strong></p>
-          <p>${user.location || 'Location not provided'}</p>
-          <button class="profile-btn" onclick="viewProfile('${user.name}')">View Profile</button>
+          <img src="${user.profilePic || 'default-avatar.png'}" alt="Profile" onclick="viewProfile('${user._id}')">
+          <p><strong>${user.name}</strong><br>${user.location || 'Location not provided'}</p>
+          <button class="profile-btn" onclick="viewProfile('${user._id}')">View Profile</button>
         `;
         friendsList.appendChild(friendDiv);
       });
@@ -86,26 +140,14 @@
 
     function searchProfiles() {
       let input = document.getElementById('searchBox').value.toLowerCase();
-      let users = JSON.parse(localStorage.getItem('heartspaceUsers')) || [];
-      let friendsList = document.getElementById('friendsList');
+      let users = JSON.parse(localStorage.getItem('allUsers')) || [];
 
-      friendsList.innerHTML = "";
-      users.forEach(user => {
-        if (user.name.toLowerCase().includes(input)) {
-          let friendDiv = document.createElement('div');
-          friendDiv.classList.add('friend');
-          friendDiv.innerHTML = `
-            <p><strong>${user.name}</strong></p>
-            <p>${user.location || 'Location not provided'}</p>
-            <button class="profile-btn" onclick="viewProfile('${user.name}')">View Profile</button>
-          `;
-          friendsList.appendChild(friendDiv);
-        }
-      });
+      let filteredUsers = users.filter(user => user.name.toLowerCase().includes(input));
+      displayUsers(filteredUsers);
     }
 
-    function viewProfile(name) {
-      localStorage.setItem('viewedProfile', name);
+    function viewProfile(userId) {
+      localStorage.setItem('viewingProfile', userId);
       window.location.href = 'view-profile.html';
     }
   </script>

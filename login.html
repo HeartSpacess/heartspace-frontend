@@ -15,6 +15,7 @@
       color: white;
       padding: 20px;
       text-align: center;
+      font-size: 22px;
     }
     main {
       margin: 40px auto;
@@ -45,10 +46,11 @@
     }
     .login-form input {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-bottom: 15px;
       border: 1px solid #ccc;
       border-radius: 5px;
+      font-size: 16px;
     }
     .button {
       background-color: #1976d2;
@@ -59,6 +61,7 @@
       cursor: pointer;
       font-size: 16px;
       width: 100%;
+      transition: background-color 0.3s ease;
     }
     .button:hover {
       background-color: #125aa6;
@@ -72,6 +75,12 @@
       color: #1976d2;
       font-weight: bold;
     }
+    /* Mobile Optimization */
+    @media (max-width: 500px) {
+      .login-card {
+        width: 90%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -82,8 +91,8 @@
     <div class="login-card">
       <h2>Login to Your Account</h2>
       <form id="loginForm" class="login-form">
-        <label for="identifier">Email or Phone</label>
-        <input type="text" id="identifier" placeholder="Enter your email or phone" required>
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
 
         <label for="password">Password</label>
         <input type="password" id="password" placeholder="Enter your password" required>
@@ -97,30 +106,37 @@
   </main>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', (event) => {
+    document.getElementById('loginForm').addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      const identifier = document.getElementById('identifier').value.trim();
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
 
-      // Retrieve stored users
-      let allUsers = JSON.parse(localStorage.getItem('heartspaceUsers')) || [];
+      try {
+        const response = await fetch("http://localhost:5000/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
 
-      // Find the user
-      const matchedUser = allUsers.find(user => 
-        (user.email === identifier || user.phone === identifier) && user.password === password
-      );
+        const data = await response.json();
 
-      if (!matchedUser) {
-        alert('Login failed. Incorrect email/phone or password.');
-        return;
+        if (!response.ok) {
+          alert(data.message || "Login failed. Please check your credentials.");
+          return;
+        }
+
+        // Store JWT Token & User Data Securely
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+
+        alert("Login successful! Redirecting...");
+        window.location.href = "dashboard.html"; // Redirect to dashboard instead of profile
+
+      } catch (error) {
+        console.error("Login Error:", error);
+        alert("Something went wrong. Please try again.");
       }
-
-      // Store current session user
-      localStorage.setItem('currentUser', JSON.stringify(matchedUser));
-
-      alert('Login successful! Redirecting...');
-      window.location.href = 'profile.html';
     });
   </script>
 </body>

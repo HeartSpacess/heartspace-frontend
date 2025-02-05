@@ -12,7 +12,7 @@
     .signup-card h2 { text-align: center; margin-top: 0; color: #1976d2; margin-bottom: 20px; }
     .signup-form label { display: block; margin-bottom: 5px; font-weight: bold; }
     .signup-form input, .signup-form select { width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; }
-    .button { background-color: #1976d2; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    .button { background-color: #1976d2; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; }
     .button:hover { background-color: #125aa6; }
     .login-link { text-align: center; margin-top: 10px; }
     .login-link a { text-decoration: none; color: #1976d2; font-weight: bold; }
@@ -54,33 +54,49 @@
 
         <button type="submit" class="button">Sign Up</button>
       </form>
+      <div class="login-link">
+        <p>Already a member? <a href="login.html">Login here</a></p>
+      </div>
     </div>
   </main>
 
   <script>
-    document.getElementById('signupForm').addEventListener('submit', (event) => {
+    document.getElementById('signupForm').addEventListener('submit', async (event) => {
       event.preventDefault();
 
-      const userData = {
-        name: document.getElementById('name').value.trim(),
-        gender: document.getElementById('gender').value,
-        dob: document.getElementById('dob').value,
-        email: document.getElementById('email').value.trim(),
-        phone: document.getElementById('phone').value.trim(),
-        password: document.getElementById('password').value,
-        location: document.getElementById('location').value.trim(),
-        profilePic: "default-avatar.png"
-      };
+      const name = document.getElementById('name').value.trim();
+      const gender = document.getElementById('gender').value;
+      const dob = document.getElementById('dob').value;
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      const location = document.getElementById('location').value.trim();
 
-      let users = JSON.parse(localStorage.getItem('heartspaceUsers')) || [];
-      users.push(userData);
-      localStorage.setItem('heartspaceUsers', JSON.stringify(users));
+      if (password.length < 6) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
 
-      // Now correctly set THIS user as the logged-in user
-      localStorage.setItem('loggedInUser', JSON.stringify(userData));
+      // Send data to backend API
+      try {
+        const response = await fetch("http://localhost:5000/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, gender, dob, email, phone, password, location })
+        });
 
-      alert('Account created successfully! Redirecting to your profile...');
-      window.location.href = 'profile.html';
+        const data = await response.json();
+
+        if (response.ok) {
+          alert("Account created successfully! Redirecting to login...");
+          window.location.href = "login.html"; // Redirect to login page
+        } else {
+          alert(data.message || "Signup failed!");
+        }
+      } catch (error) {
+        console.error("Error signing up:", error);
+        alert("Something went wrong. Please try again.");
+      }
     });
   </script>
 </body>

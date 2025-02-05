@@ -80,42 +80,6 @@
     .user-name:hover {
       text-decoration: underline;
     }
-    .like-comment-section {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 5px;
-    }
-    .like-btn, .comment-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      color: #1976d2;
-      font-weight: bold;
-    }
-    .like-btn:hover, .comment-btn:hover {
-      text-decoration: underline;
-    }
-    .comment-section {
-      display: none;
-      margin-top: 10px;
-      padding-left: 10px;
-    }
-    .comment-section input {
-      width: 80%;
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    .comment-section button {
-      padding: 5px 10px;
-      border: none;
-      background-color: #1976d2;
-      color: white;
-      cursor: pointer;
-      border-radius: 5px;
-    }
   </style>
 </head>
 <body>
@@ -125,88 +89,47 @@
   </header>
 
   <main id="postContainer">
-    <!-- Posts will be loaded here -->
+    <p>Loading posts...</p>
   </main>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const postContainer = document.getElementById('postContainer');
-      let posts = JSON.parse(localStorage.getItem('heartspacePosts')) || [];
+      postContainer.innerHTML = "<p>Loading posts...</p>";
 
-      if (posts.length === 0) {
-        postContainer.innerHTML = "<p>No posts available. Be the first to share your love story!</p>";
-        return;
+      try {
+        const response = await fetch("http://localhost:5000/posts");
+        const posts = await response.json();
+
+        if (posts.length === 0) {
+          postContainer.innerHTML = "<p>No posts available. Be the first to share your love story!</p>";
+          return;
+        }
+
+        postContainer.innerHTML = ""; // Clear loading text
+
+        posts.forEach((post) => {
+          const postDiv = document.createElement('div');
+          postDiv.classList.add('post');
+          postDiv.innerHTML = `
+            <img class="profile-pic" src="${post.profilePic || 'default-avatar.png'}" alt="Profile" onclick="viewProfile('${post.userId}')">
+            <div class="post-content">
+              <p><strong class="user-name" onclick="viewProfile('${post.userId}')">${post.name || 'Unknown User'}</strong></p>
+              <p>${post.content}</p>
+              <small>${new Date(post.createdAt).toLocaleString()}</small>
+            </div>
+          `;
+          postContainer.prepend(postDiv); // Latest posts at the top
+        });
+      } catch (error) {
+        console.error("Error loading posts:", error);
+        postContainer.innerHTML = "<p>Failed to load posts. Try again later.</p>";
       }
-
-      posts.reverse().forEach((post, index) => {
-        const postDiv = document.createElement('div');
-        postDiv.classList.add('post');
-        postDiv.innerHTML = `
-          <img class="profile-pic" src="${post.profilePic || 'default-avatar.png'}" alt="Profile" onclick="viewProfile('${post.email}')">
-          <div class="post-content">
-            <p><strong class="user-name" onclick="viewProfile('${post.email}')">${post.name}</strong></p>
-            <p>${post.content}</p>
-            <small>${post.date}</small>
-            <div class="like-comment-section">
-              <button class="like-btn" id="like-btn-${index}" onclick="likePost(${index})">❤️ Like (<span id="like-count-${index}">${post.likes || 0}</span>)</button>
-              <button class="comment-btn" onclick="toggleCommentSection(${index})">💬 Comment</button>
-            </div>
-            <div class="comment-section" id="comment-section-${index}" style="display: none;">
-              <input type="text" id="comment-input-${index}" placeholder="Write a comment...">
-              <button onclick="addComment(${index})">Post</button>
-              <div id="comment-list-${index}">
-                ${(post.comments || []).map(comment => `<p><small>${comment}</small></p>`).join('')}
-              </div>
-            </div>
-          </div>
-        `;
-        postContainer.prepend(postDiv); // Adds latest post at the top
-      });
     });
 
-    function viewProfile(email) {
-      localStorage.setItem('viewingProfile', email);
+    function viewProfile(userId) {
+      localStorage.setItem('viewingProfile', userId);
       window.location.href = 'viewProfile.html';
-    }
-
-    function likePost(index) {
-      let posts = JSON.parse(localStorage.getItem('heartspacePosts')) || [];
-      let likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || {};
-
-      if (likedPosts[index]) {
-        alert("You already liked this post!");
-        return;
-      }
-
-      posts[index].likes = (posts[index].likes || 0) + 1;
-      localStorage.setItem('heartspacePosts', JSON.stringify(posts));
-      document.getElementById(`like-count-${index}`).innerText = posts[index].likes;
-
-      likedPosts[index] = true;
-      localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
-    }
-
-    function toggleCommentSection(index) {
-      const commentSection = document.getElementById(`comment-section-${index}`);
-      commentSection.style.display = commentSection.style.display === "none" ? "block" : "none";
-    }
-
-    function addComment(index) {
-      let posts = JSON.parse(localStorage.getItem('heartspacePosts')) || [];
-      const commentInput = document.getElementById(`comment-input-${index}`);
-      const commentText = commentInput.value.trim();
-
-      if (!commentText) return;
-
-      if (!posts[index].comments) posts[index].comments = [];
-      posts[index].comments.push(commentText);
-      localStorage.setItem('heartspacePosts', JSON.stringify(posts));
-
-      const commentList = document.getElementById(`comment-list-${index}`);
-      const newComment = document.createElement('p');
-      newComment.innerHTML = `<small>${commentText}</small>`;
-      commentList.appendChild(newComment);
-      commentInput.value = "";
     }
   </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HeartSpace - User Profile</title>
+  <title>View Profile - HeartSpace</title>
   <style>
     body {
       margin: 0;
@@ -26,50 +26,44 @@
       width: 90%;
       max-width: 600px;
     }
-    .profile-card, .posts-container {
+    .profile-card {
       background-color: white;
       width: 100%;
       padding: 20px;
       border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
       text-align: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       margin-bottom: 20px;
+    }
+    .profile-info p {
+      margin: 5px 0;
+      font-size: 16px;
+      color: #555;
     }
     .profile-pic {
       width: 120px;
       height: 120px;
       border-radius: 50%;
       object-fit: cover;
+      display: block;
+      margin: 0 auto 15px;
       border: 3px solid #1976d2;
-      margin: 10px auto;
     }
-    .profile-info p {
-      font-size: 16px;
-      color: #555;
-    }
-    .button {
-      background-color: #1976d2;
-      color: white;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-    .button:hover {
-      background-color: #125aa6;
-    }
-    .posts-container h3 {
-      color: #1976d2;
+    .my-posts {
+      background-color: white;
+      width: 100%;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
       text-align: center;
+      margin-top: 20px;
     }
     .post-item {
       background: #f9f9f9;
       padding: 10px;
       border-radius: 5px;
       margin-bottom: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       text-align: left;
     }
     .post-item p {
@@ -83,62 +77,78 @@
   </style>
 </head>
 <body>
-  <header>HeartSpace User Profile</header>
+  <header>
+    View Profile
+  </header>
+
   <main>
     <div class="profile-card">
-      <h2 id="userName"></h2>
-      <img id="userPic" class="profile-pic" src="default-avatar.png" alt="Profile Picture">
-      <div id="userInfo"></div>
-      <button class="button" onclick="goBack()">Go Back</button>
+      <h2 id="profileName"></h2>
+      <img id="profilePic" class="profile-pic" src="default-avatar.png" alt="Profile Picture">
+      <div class="profile-info" id="profileInfo"></div>
     </div>
 
-    <div class="posts-container">
-      <h3>User's Posts</h3>
+    <div class="my-posts">
+      <h3>Posts by <span id="profileNamePosts"></span></h3>
       <div id="userPostsContainer"></div>
     </div>
   </main>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const user = JSON.parse(localStorage.getItem("viewedUser"));
-
-      if (!user) {
-        document.querySelector(".profile-card").innerHTML = "<h2>User Not Found</h2><p>Invalid Profile</p>";
+    document.addEventListener('DOMContentLoaded', async () => {
+      const viewingUserId = localStorage.getItem('viewingProfile');
+      if (!viewingUserId) {
+        document.querySelector(".profile-card").innerHTML = "<h2>Profile Not Found</h2><p>User does not exist.</p>";
         return;
       }
 
-      document.getElementById("userName").textContent = user.name;
-      document.getElementById("userPic").src = user.profilePic || "default-avatar.png";
-      document.getElementById("userInfo").innerHTML = `
-        <p><strong>Gender:</strong> ${user.gender}</p>
-        <p><strong>Email/Phone:</strong> ${user.email || user.phone}</p>
-        <p><strong>Location:</strong> ${user.location}</p>
-      `;
+      try {
+        // ✅ Fetch User Profile
+        const userResponse = await fetch(`http://localhost:5000/auth/users/${viewingUserId}`);
+        const user = await userResponse.json();
 
-      // Load user posts
-      const allPosts = JSON.parse(localStorage.getItem("heartspacePosts")) || [];
-      const userPosts = allPosts.filter(post => post.name === user.name);
-      const userPostsContainer = document.getElementById("userPostsContainer");
+        if (!user || userResponse.status !== 200) {
+          document.querySelector(".profile-card").innerHTML = "<h2>Profile Not Found</h2><p>User does not exist.</p>";
+          return;
+        }
 
-      if (userPosts.length === 0) {
-        userPostsContainer.innerHTML = "<p>No posts found for this user.</p>";
-      } else {
-        userPosts.forEach(post => {
-          const postItem = document.createElement("div");
-          postItem.classList.add("post-item");
+        document.getElementById('profileName').innerText = user.name;
+        document.getElementById('profileNamePosts').innerText = user.name;
+        document.getElementById('profilePic').src = user.profilePic || "default-avatar.png";
+        document.getElementById('profileInfo').innerHTML = `
+          <p><strong>Gender:</strong> ${user.gender}</p>
+          <p><strong>Date of Birth:</strong> ${user.dob}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Location:</strong> ${user.location}</p>
+        `;
+
+        // ✅ Fetch User Posts
+        const postsResponse = await fetch(`http://localhost:5000/posts/${viewingUserId}`);
+        const posts = await postsResponse.json();
+
+        const userPostsContainer = document.getElementById('userPostsContainer');
+        userPostsContainer.innerHTML = '';
+
+        if (posts.length === 0) {
+          userPostsContainer.innerHTML = "<p>No posts by this user.</p>";
+          return;
+        }
+
+        posts.forEach(post => {
+          const postItem = document.createElement('div');
+          postItem.classList.add('post-item');
           postItem.innerHTML = `
-            <p><strong>${post.name}</strong></p>
             <p>${post.content}</p>
-            <small>Posted on: ${post.date}</small>
+            <small>${new Date(post.createdAt).toLocaleString()}</small>
           `;
           userPostsContainer.appendChild(postItem);
         });
+
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        document.querySelector(".profile-card").innerHTML = "<h2>Error</h2><p>Failed to load profile.</p>";
       }
     });
-
-    function goBack() {
-      window.history.back();
-    }
   </script>
 </body>
 </html>
